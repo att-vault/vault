@@ -1,0 +1,23 @@
+To convert the Zone10_20[09-14]_01.*.zip files to CSV format, we used Anaconda
+to install the GDAL library:
+
+    conda install gdal
+
+This provides the ogr2ogr command, which we used to convert each *.gdb
+extracted directory into a set of CSV files. 
+
+For instance,
+
+    ogr2ogr -f CSV output.csv Zone10_2009_01.gdb -lco GEOMETRY=AS_XYZ
+
+produces the following files:
+
+    Vessel.csv
+    Voyage.csv
+    output.csv
+
+In all years except 2010, the output.csv should be renamed to Broadcast.csv.
+For 2010, output.csv should be renamed to Voyage.csv. (Broadcast.csv is 
+generated directly from the ogr2ogr program.)
+
+
