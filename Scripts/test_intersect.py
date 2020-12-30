@@ -64,7 +64,7 @@ def check_values(sat, hits):
 
 if __name__ == "__main__":
     import intersect
-    from intersect import compute_hits, compute_hits_parallel
+    from intersect import compute_hits
     intersect.PRINT_INFO = True
 
     num_sat = 4000
@@ -73,8 +73,7 @@ if __name__ == "__main__":
     print(f"Satellite track pts: {num_sat:,}; \tAIS points: {num_ais:,}")
     sat, vessels = create_dummy_data(num_sat, num_ais)
     start = time.time()
-    hits = compute_hits(sat, vessels) #, start=400000, numrows=100000)
-    #hits = compute_hits_parallel(sat, vessels, workers=4)
+    hits = compute_hits(sat, vessels)
     delta = time.time() - start
     #print(hits)
     print("Total Wall Clock Time:", delta)
