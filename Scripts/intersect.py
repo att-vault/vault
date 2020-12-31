@@ -68,8 +68,8 @@ def haversine_angle(lon1, lat1, lon2, lat2):
     return c
     
 
-#@guvectorize(["float64[:], float64[:], float64[:], float64[:], float64[:], float64[:], float64[:], boolean[:]"],
-              #"(m),(m),(m),(m),(n),(n),(n)->(n)", nopython=True, fastmath=True, target="parallel")
+@guvectorize(["float64[:], float64[:], float64[:], float64[:], float64[:], float64[:], float64[:], boolean[:]"],
+              "(m),(m),(m),(m),(n),(n),(n)->(n)", nopython=True, fastmath=True, target="parallel")
 def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output):
     """ Vectorized, JITted function to return list of vessel locations that
     were observed by the satellite.
