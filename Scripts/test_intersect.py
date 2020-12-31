@@ -1,6 +1,7 @@
 """ Test for the intersector code """
 
 import numpy as np
+from numpy import datetime64 as dt64
 import pandas as pd
 import datetime
 import time
@@ -46,6 +47,7 @@ def make_test_data_1():
     shipdf = pd.DataFrame(ship, columns=["date_time", "MMSI", "lat", "long"])
     return satdf, shipdf
 
+
 def test1():
     sat, ships = make_test_data_1()
     from intersect import compute_hits
@@ -75,19 +77,21 @@ df = create_dummy_sat_track()
 
 def create_dummy_data(numsatpoints = 4000, numaispoints=1_000_000):
     # Create a simple West-East satellite track
-    sat_time = np.linspace(0, 120, numsatpoints, dtype=np.float64)
-    sat_lat = 30.0 * np.ones_like(sat_time)
-    sat_long = np.linspace(-110.0, -100.0, numsatpoints)
-    sat_alt = np.zeros_like(sat_time) + EARTH_RADIUS + 200
+    sat_time = np.linspace(dt64("2014-01-11T18:00:00").astype(int), 
+                           dt64("2014-01-14T12:00:00").astype(int), numsatpoints)
+    sat_lat = 30.0 + np.zeros(len(sat_time))
+    sat_long = np.linspace(-150.0, -100.0, numsatpoints)
+    sat_alt = np.zeros(len(sat_time)) + EARTH_RADIUS + 200
 
     sat_track = pd.DataFrame({"date_time": sat_time, "lat": sat_lat,
         "long": sat_long, "alt": sat_alt})
 
     vessel_df = pd.DataFrame({
-            "date_time": np.linspace(30, 110, numaispoints, dtype=np.float64),
+            "date_time": np.linspace(dt64("2014-01-12T00:00:00").astype(int),
+                                     dt64("2014-01-13T11:59:00").astype(int), numaispoints),
             "MMSI": np.zeros(numaispoints,dtype=np.int64) + 3456,
-            "lat": np.linspace(25.0, 40.0, numaispoints),
-            "long": np.linspace(-108.0, -102.0, numaispoints) })
+            "lat": np.linspace(15.0, 50.0, numaispoints),
+            "long": np.linspace(-130.0, -120.0, numaispoints) })
 
     return sat_track, vessel_df
 
@@ -110,12 +114,13 @@ def orig_test():
     hits = compute_hits(sat, vessels)
     delta = time.time() - start
     #print(hits)
+    print(f"Found {len(hits)} hits.")
     print("Total Wall Clock Time:", delta)
     
 
 if __name__ == "__main__":
-    #orig_test()
-    test1()
+    orig_test()
+    #test1()
 
 
 
