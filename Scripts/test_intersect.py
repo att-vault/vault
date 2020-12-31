@@ -20,6 +20,40 @@ def load_ais(datapath: str):
     pass
 
 
+def make_test_data_1():
+    """ This creates a satellite track that consists of two points, and
+    a vessel track of four positions that cross the satellite track.
+    """
+
+    # The satellite is at 200km altitude, which implies a FOV circle
+    # with radius ~1576 km, which is 14.1 deg when viewed from the 
+    # center of the earth.
+    sat_alt = 200 + EARTH_RADIUS
+    #
+    # For this test, we pick Latitude=40 deg North.
+    # We also create contrived time points, for ease of debugging,
+    # going from t=100 to t=200.
+    sat = np.array([[100, 40, -150, sat_alt],
+                    [200, 40, -110, sat_alt]], dtype=np.float64)
+    satdf = pd.DataFrame(sat, columns=["date_time", "lat", "long", "alt"])
+
+    # The first and last vessel point fall outside the satellite visibility,
+    # and the middle two points fall inside.
+    ship = np.array([[110.0, 1234, 10.0, -145.0],
+                     [130.0, 1234, 35.0, -137.0],
+                     [150.0, 1234, 45.0, -124.0],
+                     [170.0, 1234, 70.0, -115.0]])
+    shipdf = pd.DataFrame(ship, columns=["date_time", "MMSI", "lat", "long"])
+    return satdf, shipdf
+
+def test1():
+    sat, ships = make_test_data_1()
+    from intersect import compute_hits
+    import intersect
+    intersect.PRINT_INFO = True
+    hits = compute_hits(sat, ships, workers=1)
+    print(hits)
+
 def create_dummy_sat_track():
     from skyfield.sgp4lib import EarthSatellite
     from skyfield.framelib import itrs
@@ -62,7 +96,7 @@ def check_values(sat, hits):
     # and manually do a calculation to compute FOV.
     pass
 
-if __name__ == "__main__":
+def orig_test():
     import intersect
     from intersect import compute_hits
     intersect.PRINT_INFO = True
@@ -78,6 +112,10 @@ if __name__ == "__main__":
     #print(hits)
     print("Total Wall Clock Time:", delta)
     
+
+if __name__ == "__main__":
+    #orig_test()
+    test1()
 
 
 

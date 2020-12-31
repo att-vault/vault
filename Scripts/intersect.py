@@ -68,8 +68,8 @@ def haversine_angle(lon1, lat1, lon2, lat2):
     return c
     
 
-@guvectorize(["float64[:], float64[:], float64[:], float64[:], float64[:], float64[:], float64[:], boolean[:]"],
-              "(m),(m),(m),(m),(n),(n),(n)->(n)", nopython=True, fastmath=True, target="parallel")
+#@guvectorize(["float64[:], float64[:], float64[:], float64[:], float64[:], float64[:], float64[:], boolean[:]"],
+              #"(m),(m),(m),(m),(n),(n),(n)->(n)", nopython=True, fastmath=True, target="parallel")
 def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output):
     """ Vectorized, JITted function to return list of vessel locations that
     were observed by the satellite.
@@ -115,6 +115,8 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
     sat_length = sat_time.shape[0]
     dirty = True
 
+    #import ipdb; ipdb.set_trace()
+
     for i in range(v_time.shape[0]):
         vtime = v_time[i]
 
@@ -146,7 +148,7 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
 
         if MIN_HORIZON_ELEVATION < 1e6:
             # if horizon elevation is nearly 0, then do optimized FOV calc
-            sat_fov_max_angle = asin(R / sat_interp_alt)
+            sat_fov_max_angle = acos(R / sat_interp_alt)
         else:
             sat_fov_max_angle = pi/2 - min_horizon_angle - \
                     asin(R/(sat_interp_alt) * sin(min_horizon_angle+pi/2))
