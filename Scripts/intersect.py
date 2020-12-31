@@ -37,7 +37,7 @@ The basic algorithm is:
 
 import numpy as np
 from numpy import float64
-from math import pi, cos, sin, asin, acos, sqrt
+from math import pi, cos, sin, asin, acos, sqrt, atan2
 import pandas as pd
 from pandas import DataFrame
 import datetime as dt
@@ -51,6 +51,7 @@ MIN_HORIZON_ELEVATION = float64(0)
 # If set to True, then dumps out debug timing info etc.
 PRINT_INFO = False
 
+EARTH_RADIUS = 6371.0  # radius of earth, in km
 
 @njit(inline="always", fastmath=True)
 def haversine_angle(lon1, lat1, lon2, lat2):
@@ -62,7 +63,7 @@ def haversine_angle(lon1, lat1, lon2, lat2):
 
     # haversine formula 
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a)) 
+    c = 2 * atan2(sqrt(a), sqrt(1-a)) 
 
     #R = 6371.0 # Radius of earth in kilometers
     return c
@@ -105,7 +106,6 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
     #   3. Although the input lat/long are in float32, we cast to float64 for the computation
 
     min_horizon_angle = MIN_HORIZON_ELEVATION/180.0*pi 
-    R = 6371.0  # radius of earth, in km
 
     # Handle the case when we have AIS data that is before the first sat data
     # Now find the starting index into the satellite data
@@ -114,8 +114,6 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
     sat_right = sat_time[sat_idx]
     sat_length = sat_time.shape[0]
     dirty = True
-
-    #import ipdb; ipdb.set_trace()
 
     for i in range(v_time.shape[0]):
         vtime = v_time[i]
@@ -130,7 +128,8 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
             sat_left = sat_right
             sat_right = sat_time[sat_idx]
             dirty = True
-        # assert sat_left <= vtime < sat_right
+
+        # Loop condition: sat_left <= vtime < sat_right
 
         if dirty:
             dirty = False
@@ -146,19 +145,22 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
         sat_interp_long = beta * lng_left + alpha * lng_right
         sat_interp_alt  = beta * alt_left + alpha * alt_right
 
+        if sat_interp_alt < EARTH_RADIUS:
+            sat_interp_alt = EARTH_RADIUS
+
         if MIN_HORIZON_ELEVATION < 1e6:
             # if horizon elevation is nearly 0, then do optimized FOV calc
-            sat_fov_max_angle = acos(R / sat_interp_alt)
+            sat_fov_max_angle = acos(EARTH_RADIUS / sat_interp_alt)
         else:
             sat_fov_max_angle = pi/2 - min_horizon_angle - \
-                    asin(R/(sat_interp_alt) * sin(min_horizon_angle+pi/2))
+                    asin(EARTH_RADIUS/sat_interp_alt * sin(min_horizon_angle+pi/2))
 
         angle = haversine_angle(sat_interp_long, sat_interp_lat, v_long[i], v_lat[i])
         if angle <= sat_fov_max_angle:
             output[i] = True
     
     # No return value; output is written into **output** array.
-    return
+    return 
 
 
 def compute_hits(sat_track: DataFrame, vessel_points: DataFrame, workers=None) -> DataFrame:
@@ -196,6 +198,7 @@ def compute_hits(sat_track: DataFrame, vessel_points: DataFrame, workers=None) -
             workers *= 2
     if PRINT_INFO:
         print('Using %d chunks' % workers)
+
     if workers > 1:
         chunksize = int(numvessels / workers)
         totalsize = chunksize * workers
