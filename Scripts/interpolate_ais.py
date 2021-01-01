@@ -87,7 +87,8 @@ def interpolate_track(vessels: pd.DataFrame, maxdist=200, maxdt=300):
             outrows.extend((row[0], np.datetime64(int(dt*j+times[i]),"s"), dlat*j+lat, dlon*j+lon)
                             for j in range(1,numsegments))
     
-    return pd.DataFrame(outrows)
+    return pd.DataFrame(outrows).astype({"mmsi_id":np.int64, "date_time":np.datetime64,
+                    "lat":np.float32, "lon":np.float32})
 
 
 def main():
@@ -96,10 +97,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="the input HDF5-formatted AIS file", type=str)
     parser.add_argument("-i", "--interval", help="the approximate time gap, in seconds,"
-                            " between interpolated points", default=300, type=int)
+                        " between interpolated points", default=300, type=int)
     parser.add_argument("-d", "--distance", help="the maximum range, in km, between"
-                            "successive points, in which we will perform interpolation",
-                            default=200, type=int)
+                        "successive points, in which we will perform interpolation",
+                        default=200, type=int)
+    parser.add_argument("-c", "--complevel", help="compression level of output HDF5",
+                        default=3, type=int)
     parser.add_argument("-o", "--output", help="the output filename. defaults to INPUT.interp.h5")
     args = parser.parse_args()
 
@@ -116,7 +119,7 @@ def main():
     
     if os.path.exists(outfile):
         # append timestamp
-        outfile = os.path.join(outfile, str(int(time.time())))
+        outfile = outfile + str(int(time.time()))
 
     print("Reading", filename, "; output into", outfile)
     df = pd.read_hdf(filename)
@@ -124,7 +127,7 @@ def main():
     idf = interpolate_track(df, args.distance, args.interval)
     end_time = time.time()
     print(f"Interpolation of {len(df)} points took", end_time-start_time, "seconds")
-    idf.to_hdf(outfile, "interp_data")
+    idf.to_hdf(outfile, "interp_data", complevel=args.complevel)
     print(f"Wrote {len(idf)} interpolated points to", outfile)
 
 if __name__ == "__main__":
