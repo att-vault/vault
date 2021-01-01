@@ -85,7 +85,6 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
     v_lat, v_long: float32
 
     output: bool; True if point is a hit, False otherwise
-
     """
 
     # The basic algorithm:
@@ -107,29 +106,35 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
 
     min_horizon_angle = MIN_HORIZON_ELEVATION/180.0*pi 
 
-    # Handle the case when we have AIS data that is before the first sat data
-    # Now find the starting index into the satellite data
+    # Find the starting index into the satellite data
     sat_idx = 1
     sat_left = sat_time[sat_idx - 1]
     sat_right = sat_time[sat_idx]
     sat_length = sat_time.shape[0]
     dirty = True
-
+    
     for i in range(v_time.shape[0]):
         vtime = v_time[i]
 
         # Sweep to the correct interval in the satellite data
+        # If the current time point is before the satellite data, then keep
+        # advancing through the AIS data
         if vtime < sat_left:
             continue
         while vtime >= sat_right:
             sat_idx += 1
             if sat_idx == sat_length:
+                # The vessel time point (and all subsequent points) are
+                # past the last point in the satellite track.
                 return
             sat_left = sat_right
             sat_right = sat_time[sat_idx]
             dirty = True
 
         # Loop condition: sat_left <= vtime < sat_right
+
+        if i>0 and v_time[i-1] != vtime:
+            dirty = True
 
         if dirty:
             dirty = False
@@ -138,12 +143,12 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
             lng_left, lng_right = sat_long[sat_idx - 1], sat_long[sat_idx]
             alt_left, alt_right = sat_alt[sat_idx - 1], sat_alt[sat_idx]
 
-        # Interpolate the lat, long, and altitude values
-        alpha = float(vtime - sat_left) / time_diff
-        beta = float(sat_right - vtime) / time_diff
-        sat_interp_lat  = beta * lat_left + alpha * lat_right
-        sat_interp_long = beta * lng_left + alpha * lng_right
-        sat_interp_alt  = beta * alt_left + alpha * alt_right
+            # Interpolate the lat, long, and altitude values
+            alpha = float(vtime - sat_left) / time_diff
+            beta = float(sat_right - vtime) / time_diff
+            sat_interp_lat  = beta * lat_left + alpha * lat_right
+            sat_interp_long = beta * lng_left + alpha * lng_right
+            sat_interp_alt  = beta * alt_left + alpha * alt_right
 
         if sat_interp_alt < EARTH_RADIUS:
             sat_interp_alt = EARTH_RADIUS
@@ -180,7 +185,7 @@ def compute_hits(sat_track: DataFrame, vessel_points: DataFrame, workers=None) -
     """
     sat_length = len(sat_track)
     if sat_length < 2:
-        raise (ValueError, "Satellite track data must have minimum array length 2")
+        raise ValueError("Satellite track data must have minimum array length 2")
 
     sat_args = (sat_track["date_time"].to_numpy(dtype=int64),
                 sat_track["lat"].to_numpy(dtype=float64),
