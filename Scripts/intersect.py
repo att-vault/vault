@@ -36,7 +36,7 @@ The basic algorithm is:
 """
 
 import numpy as np
-from numpy import float64
+from numpy import float64, int64
 from math import pi, cos, sin, asin, acos, sqrt, atan2
 import pandas as pd
 from pandas import DataFrame
@@ -69,23 +69,22 @@ def haversine_angle(lon1, lat1, lon2, lat2):
     return c
     
 
-@guvectorize(["float64[:], float64[:], float64[:], float64[:], float64[:], float64[:], float64[:], boolean[:]"],
+@guvectorize(["int64[:], float64[:], float64[:], float64[:], int64[:], float64[:], float64[:], boolean[:]"],
               "(m),(m),(m),(m),(n),(n),(n)->(n)", nopython=True, fastmath=True, target="parallel")
 def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output):
     """ Vectorized, JITted function to return list of vessel locations that
     were observed by the satellite.
 
     Satellite data: (minimum length-2 array)
-    sat_time: datetime64, sorted
+    sat_time: datetime64 (int64), sorted; should be at least seconds or ms
     sat_lat, sat_long: float64
-    sat_alt: float32  (satellite distance from center-of-earth, in KM)
+    sat_alt: float64  (satellite distance from center-of-earth, in KM)
 
     Vessel data: 
-    v_time: datetime64, sorted
+    v_time: datetime64 (int64), sorted; should be at least seconds or ms
     v_lat, v_long: float32
 
     output: bool; True if point is a hit, False otherwise
-
     """
 
     # The basic algorithm:
@@ -107,23 +106,26 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
 
     min_horizon_angle = MIN_HORIZON_ELEVATION/180.0*pi 
 
-    # Handle the case when we have AIS data that is before the first sat data
-    # Now find the starting index into the satellite data
+    # Find the starting index into the satellite data
     sat_idx = 1
     sat_left = sat_time[sat_idx - 1]
     sat_right = sat_time[sat_idx]
     sat_length = sat_time.shape[0]
     dirty = True
-
+    
     for i in range(v_time.shape[0]):
         vtime = v_time[i]
 
         # Sweep to the correct interval in the satellite data
+        # If the current time point is before the satellite data, then keep
+        # advancing through the AIS data
         if vtime < sat_left:
             continue
         while vtime >= sat_right:
             sat_idx += 1
             if sat_idx == sat_length:
+                # The vessel time point (and all subsequent points) are
+                # past the last point in the satellite track.
                 return
             sat_left = sat_right
             sat_right = sat_time[sat_idx]
@@ -131,19 +133,22 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
 
         # Loop condition: sat_left <= vtime < sat_right
 
+        if i>0 and v_time[i-1] != vtime:
+            dirty = True
+
         if dirty:
             dirty = False
-            time_diff = sat_right - sat_left
+            time_diff = float(sat_right - sat_left)
             lat_left, lat_right = sat_lat[sat_idx - 1], sat_lat[sat_idx]
             lng_left, lng_right = sat_long[sat_idx - 1], sat_long[sat_idx]
             alt_left, alt_right = sat_alt[sat_idx - 1], sat_alt[sat_idx]
 
-        # Interpolate the lat, long, and altitude values
-        alpha = (vtime - sat_left) / time_diff
-        beta = (sat_right - vtime) / time_diff
-        sat_interp_lat  = beta * lat_left + alpha * lat_right
-        sat_interp_long = beta * lng_left + alpha * lng_right
-        sat_interp_alt  = beta * alt_left + alpha * alt_right
+            # Interpolate the lat, long, and altitude values
+            alpha = float(vtime - sat_left) / time_diff
+            beta = float(sat_right - vtime) / time_diff
+            sat_interp_lat  = beta * lat_left + alpha * lat_right
+            sat_interp_long = beta * lng_left + alpha * lng_right
+            sat_interp_alt  = beta * alt_left + alpha * alt_right
 
         if sat_interp_alt < EARTH_RADIUS:
             sat_interp_alt = EARTH_RADIUS
@@ -160,7 +165,7 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
             output[i] = True
     
     # No return value; output is written into **output** array.
-    return 
+    return
 
 
 def compute_hits(sat_track: DataFrame, vessel_points: DataFrame, workers=None) -> DataFrame:
@@ -180,18 +185,18 @@ def compute_hits(sat_track: DataFrame, vessel_points: DataFrame, workers=None) -
     """
     sat_length = len(sat_track)
     if sat_length < 2:
-        raise (ValueError, "Satellite track data must have minimum array length 2")
+        raise ValueError("Satellite track data must have minimum array length 2")
 
-    start_time = time.time()
-    sat_args = (sat_track["date_time"].to_numpy(dtype=float64),
+    sat_args = (sat_track["date_time"].to_numpy(dtype=int64),
                 sat_track["lat"].to_numpy(dtype=float64),
                 sat_track["long"].to_numpy(dtype=float64),
                 sat_track["alt"].to_numpy(dtype=float64))
-    vsl_args = (vessel_points["date_time"].to_numpy(dtype=float64),
+    vsl_args = (vessel_points["date_time"].to_numpy(dtype=int64),
                 vessel_points["lat"].to_numpy(dtype=float64),
                 vessel_points["long"].to_numpy(dtype=float64))
     numvessels = len(vessel_points)
     hit_mask = np.zeros(numvessels, dtype=bool)
+
     if workers is None:
         workers = 4
         while workers < 32 and (numvessels % (2 * workers)) == 0:
@@ -199,6 +204,7 @@ def compute_hits(sat_track: DataFrame, vessel_points: DataFrame, workers=None) -
     if PRINT_INFO:
         print('Using %d chunks' % workers)
 
+    start_time = time.time()
     if workers > 1:
         chunksize = int(numvessels / workers)
         totalsize = chunksize * workers
