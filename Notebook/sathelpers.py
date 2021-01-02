@@ -266,10 +266,10 @@ if __name__ == "__main__":
        Compute the track for a satellite and store it in the index:
          python sathelpers.py --inputH5 /data/Indexed_TLE/reduced.h5 --noradID 5
     
-    This is specifically desgigned to be invoked by gnu parallel ala:
-       
+    This is specifically desgigned to be invoked by gnu parallel ala the script
+    `build_index_parallel.sh` found in this same directory.
     """
-    parser = argparse.ArgumentParser(description='')
+    parser = argparse.ArgumentParser(description=usage)
     parser.add_argument("--inputH5", default="/data/Indexed_TLE/reduced.h5")
     parser.add_argument("--indexDirectory", default="/data/Indexed_TLE/index")
     parser.add_argument("--listIDs", default=False, action="store_true")
