@@ -63,7 +63,7 @@ def haversine_angle(lon1, lat1, lon2, lat2):
 
     # haversine formula 
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * atan2(sqrt(a), sqrt(1-a)) 
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
 
     #R = 6371.0 # Radius of earth in kilometers
     return c
@@ -78,7 +78,8 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
     Satellite data: (minimum length-2 array)
     sat_time: datetime64 (int64), sorted; should be at least seconds or ms
     sat_lat, sat_long: float64
-    sat_alt: float64  (satellite distance from center-of-earth, in KM)
+    sat_alt: float64  (satellite distance from center-of-earth, in KM). To effect
+            a half-earth FOV, set this to np.inf
 
     Vessel data: 
     v_time: datetime64 (int64), sorted; should be at least seconds or ms
@@ -153,7 +154,9 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
         if sat_interp_alt < EARTH_RADIUS:
             sat_interp_alt = EARTH_RADIUS
 
-        if MIN_HORIZON_ELEVATION < 1e6:
+        if np.isinf(sat_interp_alt):
+            sat_fov_max_angle = pi/2
+        elif MIN_HORIZON_ELEVATION < 1e6:
             # if horizon elevation is nearly 0, then do optimized FOV calc
             sat_fov_max_angle = acos(EARTH_RADIUS / sat_interp_alt)
         else:
@@ -168,17 +171,51 @@ def _compute(sat_time, sat_lat, sat_long, sat_alt, v_time, v_lat, v_long, output
     return
 
 
-def compute_hits(sat_track: DataFrame, vessel_points: DataFrame, workers=None) -> DataFrame:
-        #start_time: dt.datetime, end_time: dt.datetime) -> DataFrame:
+def clip_time(start_time, end_time, times, *other_arrays):
+    """ Clips a bunch of arrays based on start and end times. 
+    start_time and end_time need to be pandas Timestamps or
+    something that can be converted to one.
+
+    If either start_time or end_time is set to None, then it is ignored.
+
+    Returns: a list of truncated arrays in the same order as provided in
+    the arguments, with **times** being the first
+    """
+    if start_time is not None:
+        t = pd.Timestamp(start_time).to_numpy().astype("<M8[s]").astype(int)
+        start_ndx = times.searchsorted(t)
+    else:
+        start_ndx = None
+    
+    if end_time is not None:
+        end_ndx = times.searchsorted(pd.Timestamp(end_time).to_numpy().astype("<M8[s]").astype(int), side="right")
+    else:
+        end_ndx = None
+    
+    s = slice(start_ndx, end_ndx)
+    return [times[s].astype(np.int64)] + [a[s] for a in other_arrays]
+
+
+def compute_hits(sat_track: DataFrame, vessel_points: DataFrame, 
+                start_time: dt.datetime=None, end_time: dt.datetime=None, 
+                workers=None, assume_half_earth=False) -> DataFrame:
     """ Returns a list of points that fall within a satellite track.
     Assumes a FOV of half-earth.
 
     sat_track: DataFrame["date_time", "lat", "long", "alt"]
-    
-    vessel_points: DataFrame["MMSI", "date_time", "lat", "long"]
+    vessel_points: DataFrame["mmsi_id", "date_time", "lat", "long"]
 
-    start: starting index to work on
-    numrows: number of rows to process. If None, then process all remaining rows
+    Very important!!
+        * The **date_time** arrays for both satellite data and vessel points 
+          should be in compatible units.
+        * Both sat_track and vessel_points need to be strictly sorted
+          in time.  The function will be incorrect if they are not sorted!
+    
+    start_time, end_time: datetime.datetime() or Pandas Timestamps
+
+    assume_half_earth: boolean [False]
+        If True, assume that all satellites can see a full half-earth
+        at all times.
 
     Returns:
         a DataFrame with the same columns as input `points`
@@ -187,14 +224,27 @@ def compute_hits(sat_track: DataFrame, vessel_points: DataFrame, workers=None) -
     if sat_length < 2:
         raise ValueError("Satellite track data must have minimum array length 2")
 
-    sat_args = (sat_track["date_time"].to_numpy(dtype=int64),
+    sat_args = [sat_track["date_time"].to_numpy().astype("<M8[s]").astype(int),
                 sat_track["lat"].to_numpy(dtype=float64),
-                sat_track["long"].to_numpy(dtype=float64),
-                sat_track["alt"].to_numpy(dtype=float64))
-    vsl_args = (vessel_points["date_time"].to_numpy(dtype=int64),
-                vessel_points["lat"].to_numpy(dtype=float64),
-                vessel_points["long"].to_numpy(dtype=float64))
-    numvessels = len(vessel_points)
+                sat_track["lon"].to_numpy(dtype=float64)]
+    if assume_half_earth:
+        infs = np.empty_like(sat_args[1])
+        infs.fill(np.inf)
+        sat_args.append(infs)
+    else:
+        sat_args.append(sat_track["alt"].to_numpy(dtype=float64))
+
+    vsl = (vessel_points["date_time"].to_numpy().astype("<M8[s]").astype(int),
+            vessel_points["lat"].to_numpy(dtype=float64),
+            vessel_points["lon"].to_numpy(dtype=float64))
+    vsl_args = clip_time(start_time, end_time, vsl[0], vsl[1], vsl[2], vessel_points["mmsi_id"].to_numpy())
+    trunc_mmsi = vsl_args.pop()
+    numvessels = len(vsl_args[0])
+
+    if PRINT_INFO:
+        print(f"Time clipping truncated from {len(vessel_points['date_time'])} "
+              f"to {len(vsl_args[0])} points.")
+
     hit_mask = np.zeros(numvessels, dtype=bool)
 
     if workers is None:
@@ -219,7 +269,8 @@ def compute_hits(sat_track: DataFrame, vessel_points: DataFrame, workers=None) -
         _compute(*sat_args, *vsl_args, hit_mask)
     comp_time = time.time()
 
-    res = vessel_points[hit_mask]
+    res = pd.DataFrame({"mmsi_id": trunc_mmsi[hit_mask], "date_time": vsl_args[0][hit_mask],
+            "lat": vsl_args[1][hit_mask], "lon": vsl_args[2][hit_mask]})
     if PRINT_INFO:
         print("  compute time: %.6f"%(comp_time - start_time), "\t extract time: %.6f"%(time.time() - comp_time))
     return res
