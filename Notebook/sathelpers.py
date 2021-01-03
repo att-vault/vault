@@ -243,6 +243,10 @@ class SatelliteDataStore:
 
         times, lats, longs, dist = get_precomputed_tracks( ... )
 
+        **times** are in floating-point seconds since UNIX epoch
+        **dist** is distance from Center of Earth, in meters
+        **longs** is longitude, between 0 and 360
+
         This returns an array:
         @returns np.array (4, times)
         """
@@ -251,6 +255,20 @@ class SatelliteDataStore:
         start_index = np.searchsorted(dataz[0, :], start.timestamp())
         end_index   = np.searchsorted(dataz[0, :], end.timestamp())
         return dataz[:, start_index: end_index]
+
+    def get_precomputed_df(self, norad_id: int, start: datetime, end: datetime):
+        """ Returns a DataFrame version of get_precomputed_tracks, but also rolls
+        in two additional transformations:
+
+        * longitudes are shifted to range from -180 to 180
+        * dist is converted to KM from Meters
+        """
+        times, lats, longs, dist = self.get_precomputed_tracks(norad_id, start, end)
+        longs = (longs + 180) % 360 - 180
+        dist /= 1000.0
+        return pd.DataFrame({"date_time": times.astype("<M8[s]"),
+            "lat": lats, "lon": longs, "alt": dist})
+
 
 
 if __name__ == "__main__":
