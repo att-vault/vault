@@ -226,7 +226,7 @@ class SatelliteDataStore:
         return open_file(path_to_file, mode)
 
     def _get_array(self, norad_id):
-        return getattr(self._open_file_for_id(norad_id, "r").root, "s%d" % norad_id)[:]
+        return getattr(self._open_file_for_id(norad_id, "r").root, "s%d" % norad_id)
 
     def put_precomputed_tracks(self, norad_id: int, data: np.array):
         """
@@ -250,11 +250,16 @@ class SatelliteDataStore:
         This returns an array:
         @returns np.array (4, times)
         """
-        dataz = self._get_array(norad_id)[:]
+        array_node = self._get_array(norad_id)
+        times = array_node[0, :]
+        start_index = np.searchsorted(times, start.timestamp())
+        end_index   = np.searchsorted(times, end.timestamp())
+        
+        dataz = array_node[:, start_index: end_index]
 
-        start_index = np.searchsorted(dataz[0, :], start.timestamp())
-        end_index   = np.searchsorted(dataz[0, :], end.timestamp())
-        return dataz[:, start_index: end_index]
+        # Pull out duplicate timestamps if any exist
+        _, indices = np.unique(dataz[0, :], return_index=True)
+        return dataz[:, indices]
 
     def get_precomputed_df(self, norad_id: int, start: datetime, end: datetime):
         """ Returns a DataFrame version of get_precomputed_tracks, but also rolls

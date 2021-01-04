@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--limit",
         type=int,
-        default=100,
+        default=1000000000,
         help="Specify the limit to the number of TLE records to load from any one file")
 
     parser.add_argument(
@@ -177,3 +177,5 @@ if __name__ == "__main__":
     tle_sorted.cols.norad_id.create_index(kind="full")
 
     h5file.close()
+    print("NOTE: This output file is much larger than needed. Running `ptrepack` will save you some disk-space:")
+    print("ptrepack --propindexes " + args.output + ":/tle_sorted" +" repacked.h5" )
