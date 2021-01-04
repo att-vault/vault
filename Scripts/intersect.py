@@ -240,6 +240,8 @@ def compute_hits(sat_track: DataFrame, vessel_points: DataFrame,
     vsl_args = clip_time(start_time, end_time, vsl[0], vsl[1], vsl[2], vessel_points["mmsi_id"].to_numpy())
     trunc_mmsi = vsl_args.pop()
     numvessels = len(vsl_args[0])
+    if numvessels == 0:
+        return pd.DataFrame({"mmsi_id": [], "date_time": [], "lat": [], "lon": []})
 
     if PRINT_INFO:
         print(f"Time clipping truncated from {len(vessel_points['date_time'])} "

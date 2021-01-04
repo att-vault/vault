@@ -22,6 +22,24 @@ VALID_YEARS = list(range(2009,2018))
 if not os.path.isdir(AIS_DIR) or not os.path.isdir(SAT_DIR):
     raise IOError("Invalid source data directory")
 
+def load_ais_for_times(start_time, end_time, use_interpolation=True):
+    years = list(pd.date_range(start_time, end_time, freq="AS").year)
+    if start_time.year not in years:
+        years.insert(0, start_time.year)
+    years = sorted(set(years) & set(VALID_YEARS))  # filter out years for which we don't have data
+
+    all_ais = []
+    for year in years:
+        if use_interpolation:
+            suffix = "h5"
+        else:
+            suffix = "interp.h5"
+        ais = pd.read_hdf(os.path.join(AIS_DIR, f"ais_{year}.{suffix}"))
+        ais.sort_values(by="date_time", inplace=True)
+        all_ais.append(ais)
+    
+    return pd.concat(all_ais)
+
 def compute_visibility(norad_id, start_time, end_time, 
         use_interpolation = True,
         use_half_earth_FOV = False,
@@ -33,28 +51,8 @@ def compute_visibility(norad_id, start_time, end_time,
     satdata = SatelliteDataStore(SAT_DIR)
     sat = satdata.get_precomputed_df(norad_id, start=start_time, end=end_time)
 
-    # Figure out which years of AIS data we need to read
-    years = list(pd.date_range(start_time, end_time, freq="AS").year)
-    if start_time.year not in years:
-        years.insert(0, start_time.year)
-    years = sorted(set(years) & set(VALID_YEARS))  # filter out years for which we don't have data
-
-    if print_info:
-        print("Loading AIS for years:", years)
-
     s = time.time()
-    all_ais = []
-    for year in years:
-        if use_interpolation:
-            suffix = "h5"
-        else:
-            suffix = "interp.h5"
-        ais = pd.read_hdf(os.path.join(AIS_DIR, f"ais_{year}.{suffix}"))
-        ais.sort_values(by="date_time", inplace=True)
-        all_ais.append(ais)
-    
-    ais = pd.concat(all_ais)
-    
+    ais = load_ais_for_times(start_time, end_time, use_interpolation)
     if print_info:
         print(f"Loaded {len(ais):,} points in", time.time()-s, "seconds")
         print(ais.info())
@@ -67,6 +65,33 @@ def compute_visibility(norad_id, start_time, end_time,
         print(f"Found {len(hits):,} hits in ", time.time()-s, "seconds")
     return hits
 
+def find_sats(mmsi, start_time, end_time):
+    """ Find all satellites that could have seen the given vessel between start_time and end_time
+    """
+    sds = SatelliteDataStore(SAT_DIR)
+    ids = sds.get_norad_ids()
+    print("Found", len(ids), "satellites")
+
+    s = time.time()
+    ais = load_ais_for_times(start_time, end_time, use_interpolation=True)
+    if len(ais) > 0:
+        ais = ais[ais["mmsi_id"] == mmsi]
+    print(f"Loaded {len(ais):,} points in", time.time()-s, "seconds")
+    print(ais.info())
+
+    import tqdm
+    vis_sat = []
+    for s_id in tqdm.tqdm(ids):
+        sat = sds.get_precomputed_df(s_id, start=start_time, end=end_time)
+        if len(sat) == 0:
+            continue
+        hits = intersect.compute_hits(sat, ais, start_time, end_time, 
+                assume_half_earth = False,
+                workers = None)
+        if len(hits) > 0:
+            vis_sat.append(s_id)
+    print("Found", len(vis_sat), "satellites")
+
 def main():
     # The NORAD ID of the satellite we're interested in.
     norad_id = 25544  # the ISS
@@ -76,4 +101,6 @@ def main():
 
 if __name__ == "__main__":
     hits = main()
-    #import ipdb; ipdb.set_trace()
+    #start_time = pd.Timestamp("2015-01-01T00:00:01")
+    #end_time = pd.Timestamp("2015-01-05T00:00:00")
+    #find_sats(43676060, start_time, end_time)
