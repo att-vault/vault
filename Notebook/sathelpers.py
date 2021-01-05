@@ -340,6 +340,6 @@ if __name__ == "__main__":
     track_data = TLEManager(args.inputH5, args.noradID).compute_tlla_sequence()
     if track_data is None:
         print("No data for noradID: %i" % args.noradID)
-    else
+    else:
         carray = data_store.put_precomputed_tracks(args.noradID, track_data)
         print("Completed compute for noradID: %i %s %s" % (args.noradID, carray.shape, carray.dtype))
