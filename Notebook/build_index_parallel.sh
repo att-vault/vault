@@ -1,1 +1,1 @@
-parallel -a all_norad_ids.txt python sathelpers.py --noradID {}
+parallel -a norad_id_active.txt python sathelpers.py --noradID {}
