@@ -48,6 +48,23 @@ def make_test_data_1():
     return satdf, shipdf
 
 
+def make_ship_track(start: tuple, end: tuple, N:int=None, dt:int=None, 
+        ds:float=None, velocity:int=20):
+    """ Creates a geodesic ship track from **start** to **end**
+    
+    start, end: tuples of (time, lat, long) where time is in integer 
+                seconds since UNIX epoch
+        
+    Only one of the following parameters can be provided:
+        N: Number of points
+        dt: Time interval in seconds
+        ds: Distance in km
+
+    velocity: float
+        The speed of the ship.
+    """
+
+
 def test1():
     sat, ships = make_test_data_1()
     from intersect import compute_hits
@@ -71,7 +88,7 @@ def create_dummy_sat_track():
     
     lats, longs, dists = sat.at(jds).frame_latlon(itrs)
     return pd.DataFrame({"date_time": np_times, "lat": lats.degrees, 
-        "long": longs.degrees, "alt": dists.km})
+        "lon": longs.degrees, "alt": dists.km})
 
 df = create_dummy_sat_track()
 
@@ -80,18 +97,18 @@ def create_dummy_data(numsatpoints = 4000, numaispoints=1_000_000):
     sat_time = np.linspace(dt64("2014-01-11T18:00:00").astype(int), 
                            dt64("2014-01-14T12:00:00").astype(int), numsatpoints)
     sat_lat = 30.0 + np.zeros(len(sat_time))
-    sat_long = np.linspace(-150.0, -100.0, numsatpoints)
+    sat_lon = np.linspace(-150.0, -100.0, numsatpoints)
     sat_alt = np.zeros(len(sat_time)) + EARTH_RADIUS + 200
 
     sat_track = pd.DataFrame({"date_time": sat_time, "lat": sat_lat,
-        "long": sat_long, "alt": sat_alt})
+        "lon": sat_lon, "alt": sat_alt})
 
     vessel_df = pd.DataFrame({
             "date_time": np.linspace(dt64("2014-01-12T00:00:00").astype(int),
                                      dt64("2014-01-13T11:59:00").astype(int), numaispoints),
-            "MMSI": np.zeros(numaispoints,dtype=np.int64) + 3456,
+            "mmsi_id": np.zeros(numaispoints,dtype=np.int64) + 3456,
             "lat": np.linspace(15.0, 50.0, numaispoints),
-            "long": np.linspace(-130.0, -120.0, numaispoints) })
+            "lon": np.linspace(-130.0, -120.0, numaispoints) })
 
     return sat_track, vessel_df
 
@@ -111,7 +128,7 @@ def orig_test():
     print(f"Satellite track pts: {num_sat:,}; \tAIS points: {num_ais:,}")
     sat, vessels = create_dummy_data(num_sat, num_ais)
     start = time.time()
-    hits = compute_hits(sat, vessels)
+    hits = compute_hits(sat, vessels, start_time="2014-01-12T01:00:00", end_time="2014-01-12T09:00:00")
     delta = time.time() - start
     #print(hits)
     print(f"Found {len(hits)} hits.")

@@ -13,15 +13,28 @@ os.environ['MKL_NUM_THREADS'] = '1'
 import numpy as np
 import pandas as pd
 import pytz
-from tables import open_file, Array
+from tables import Atom, CArray, Filters, open_file
 
 from skyfield import api
 from skyfield.sgp4lib import EarthSatellite
 from skyfield.framelib import itrs
 
+def get_el_number(tle1, tle2):
+    return EarthSatellite(tle1.decode(), tle2.decode()).model.elnum
 
 def tle_dataframe(records):
-    return pd.DataFrame.from_records(records, columns=["epoch", "norad_id", "tle1", "tle2"])
+    """
+    Return a pandas dataframe containing TLE records which are ordered by epoch and secondly
+    element number
+    """
+    frame = pd.DataFrame.from_records(records, columns=["epoch", "norad_id", "tle1", "tle2"])
+
+    elnum = np.array((get_el_number(tle1, tle2) for tle1, tle2 in zip(frame["tle1"], frame["tle2"])))
+
+    frame["elnum"] = elnum
+    frame.sort_values(["epoch", "elnum"])
+    return frame
+
 
 def get_all_tles(h5path: str, norad_id: int):
     """
@@ -53,6 +66,10 @@ def get_all_ids(h5path: str) -> list:
 # This was chosen because we can't determine events such as launches/deorbits
 # on the dataset that has been reduced to match the AIS data windows.
 max_extrap = timedelta(days=7).total_seconds()
+
+def floor_to_nearest_min(epoch_s: float):
+    return int(60.0 * np.floor(epoch_s / 60.0))
+
 
 
 class TLEManager:
@@ -122,7 +139,15 @@ class TLEManager:
 
                 end = min(halfway_to_next, two_weeks_forward)
 
-            windows.append((int(round(start)), int(round(end)), self.records.tle1[i], self.records.tle2[i]))
+            start = floor_to_nearest_min(start)
+            end = floor_to_nearest_min(end)
+
+            window_length = end - start
+            if window_length <= 60:
+                print("Warning: Very short window being ignored: %f seconds" % window_length)
+                continue
+
+            windows.append((start, end, self.records.tle1[i], self.records.tle2[i]))
 
         return windows
 
@@ -138,27 +163,29 @@ class TLEManager:
 
         Compute four np.array instances:
          * times (n,)  - Epoch times (spaced by ~1 minute) that span the start to end specified
-         * lats (n,)   - ITRS Latitude in degrees
-         * longs (n,)  - ITRS Longitude in degrees
-         * radius (n,) - The distance from the COM of Earth
+         * lats (n,)   - Latitude in degrees
+         * longs (n,)  - Longitude in degrees
+         * radius (n,) - The distance from the COM of Earth in kilometers
         """
+        assert end_epoch - start_epoch > 60, "Start: %f End: %f" % (start_epoch, end_epoch)
+
         # Convert the start and end into julian
-        start_time_j = self._epoch_to_julian(start_epoch)
-        end_time_j = self._epoch_to_julian(end_epoch)
+        start_time_j = self._epoch_to_julian(floor_to_nearest_min(start_epoch))
+        end_time_j = self._epoch_to_julian(floor_to_nearest_min(end_epoch))
 
         # Compute the number of steps we will take between the start and stop
-        n_time_steps = int(round((end_epoch - start_epoch) / 60))
+        n_time_steps = int( round((end_epoch - start_epoch) / 60) )
 
         # Create matching epoch/julian times spans
         julian_times = self._ts.tt_jd(np.linspace(start_time_j, end_time_j, n_time_steps))
         epoch_times = np.linspace(start_epoch, end_epoch, n_time_steps)
 
-        # Do the actual satellite propogation math
+        # Do the actual satellite propagation math
         sat = EarthSatellite(tle1.decode(), tle2.decode())
         lats, longs, dists = sat.at(julian_times).frame_latlon(itrs)
 
         # return the times, lats, longs, and distances in the units specified
-        return epoch_times, lats.degrees, longs.degrees, dists.m
+        return epoch_times, lats.degrees, (longs.degrees + 180) % 360 - 180, dists.km
 
     def compute_tlla_sequence(self):
         """
@@ -179,20 +206,23 @@ class TLEManager:
         if not windows:
             return None
 
-        # Perform the propogation math, and concatenate the arrays to return a block
+        # Perform the propagation math, and concatenate the arrays to return a block
         to_concat = []
         for start, end, tle1, tle2 in windows:
             tlla = self.compute_lat_long_dist(start, end, tle1, tle2)
             tlla = np.vstack(tlla)
             to_concat.append(tlla)
 
-        return np.hstack(to_concat).astype(np.float32)
+        return np.hstack(to_concat)
 
 
 class SatelliteDataStore:
     def __init__(self, root_folder):
         assert os.path.exists(root_folder)
         self.root_folder = root_folder
+        # Store a reference to file handles so we can close them, if requested.
+        # key is (norad_id, file_mode) where file_mode is "r", "w", etc.
+        self._handles = {}
 
     def _norad_id_to_path(self, norad_id: int) -> str:
         hsh = hashlib.md5(str(norad_id).encode("ascii")).hexdigest()
@@ -222,18 +252,36 @@ class SatelliteDataStore:
             os.makedirs(os.path.split(path_to_file)[0])
         except FileExistsError as e:
             pass
+        
+        return self._handles.setdefault((norad_id, mode), open_file(path_to_file, mode))
 
-        return open_file(path_to_file, mode)
+        return open_file(path_to_file, mode, filters=Filters(complevel=5, complib='blosc'))
+
+    def _close(self, norad_id, mode: str):
+        """ Closes any open file handles for the given norad_id. If no ID is
+        given, then attempts to close all open file handles.
+        """
+        key = (norad_id, mode)
+        if key in self._handles:
+            self._handles[key].close()
+            del self._handles[key]
 
     def _get_array(self, norad_id):
-        return getattr(self._open_file_for_id(norad_id, "r").root, "s%d" % norad_id)[:]
+        return getattr(self._open_file_for_id(norad_id, "r").root, "s%d" % norad_id)    
 
     def put_precomputed_tracks(self, norad_id: int, data: np.array):
         """
         Add the track for `norad_id`
         """
         f = self._open_file_for_id(norad_id, "w")
-        Array(f.root, "s%d" % norad_id, data, title="Data for satellite with norad id: %s" % norad_id)
+        new_array = CArray(
+            f.root,
+            "s%d" % norad_id, 
+            atom=Atom.from_dtype(data.dtype),
+            shape=data.shape,
+            title="Data for satellite with norad id: %s" % norad_id)
+        new_array[:] = data
+        return new_array
 
     def get_precomputed_tracks(self, norad_id: int, start: datetime, end: datetime):
         """
@@ -243,21 +291,40 @@ class SatelliteDataStore:
 
         times, lats, longs, dist = get_precomputed_tracks( ... )
 
+        **times** are in floating-point seconds since UNIX epoch
+        **dist** is distance from Center of Earth, in meters
+        **longs** is longitude, between 0 and 360
+
         This returns an array:
         @returns np.array (4, times)
         """
-        dataz = self._get_array(norad_id)[:]
+        
+        array_node = self._get_array(norad_id)
+        times = array_node[0, :]
+        start_index = np.searchsorted(times, start.timestamp())
+        end_index   = np.searchsorted(times, end.timestamp())
+        
+        dataz = array_node[:, start_index: end_index]
 
-        start_index = np.searchsorted(dataz[0, :], start.timestamp())
-        end_index   = np.searchsorted(dataz[0, :], end.timestamp())
-        return dataz[:, start_index: end_index]
+        # close the file
+        self._close(norad_id, "r")
+
+        # Pull out duplicate timestamps if any exist
+        _, indices = np.unique(dataz[0, :], return_index=True)
+        return dataz[:, indices]
+
+    def get_precomputed_df(self, norad_id: int, start: datetime, end: datetime):
+        """Returns a DataFrame version of get_precomputed_tracks"""
+        times, lats, longs, dist = self.get_precomputed_tracks(norad_id, start, end)
+        return pd.DataFrame({"date_time": times.astype("<M8[s]"),
+            "lat": lats, "lon": longs, "alt": dist})
 
 
 if __name__ == "__main__":
     import argparse
 
     usage = """
-    A tool to run precomute the propogations of satellites from an index file.
+    A tool to run precomute the propagations of satellites from an index file.
 
     Usage:
        List the cached norad ID's:
@@ -276,7 +343,6 @@ if __name__ == "__main__":
     parser.add_argument("--noradID", type=int)
     
     args = parser.parse_args()
-
     data_store = SatelliteDataStore(args.indexDirectory)
 
     if (args.listIDs):
@@ -289,4 +355,8 @@ if __name__ == "__main__":
         sys.exit(0)
     
     track_data = TLEManager(args.inputH5, args.noradID).compute_tlla_sequence()
-    data_store.put_precomputed_tracks(args.noradID, track_data)
+    if track_data is None:
+        print("No data for noradID: %i" % args.noradID)
+    else:
+        carray = data_store.put_precomputed_tracks(args.noradID, track_data)
+        print("Completed compute for noradID: %i %s %s" % (args.noradID, carray.shape, carray.dtype))
