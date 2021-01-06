@@ -180,7 +180,7 @@ class TLEManager:
         julian_times = self._ts.tt_jd(np.linspace(start_time_j, end_time_j, n_time_steps))
         epoch_times = np.linspace(start_epoch, end_epoch, n_time_steps)
 
-        # Do the actual satellite propogation math
+        # Do the actual satellite propagation math
         sat = EarthSatellite(tle1.decode(), tle2.decode())
         lats, longs, dists = sat.at(julian_times).frame_latlon(itrs)
 
@@ -206,7 +206,7 @@ class TLEManager:
         if not windows:
             return None
 
-        # Perform the propogation math, and concatenate the arrays to return a block
+        # Perform the propagation math, and concatenate the arrays to return a block
         to_concat = []
         for start, end, tle1, tle2 in windows:
             tlla = self.compute_lat_long_dist(start, end, tle1, tle2)
@@ -324,7 +324,7 @@ if __name__ == "__main__":
     import argparse
 
     usage = """
-    A tool to run precomute the propogations of satellites from an index file.
+    A tool to run precomute the propagations of satellites from an index file.
 
     Usage:
        List the cached norad ID's:
