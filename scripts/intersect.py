@@ -260,9 +260,12 @@ def compute_hits(sat_track: DataFrame, vessel_points: DataFrame,
     if workers > 1:
         chunksize = int(numvessels / workers)
         totalsize = chunksize * workers
-        _compute(*sat_args,
-                 *(np.reshape(v[:totalsize], (-1, chunksize)) for v in vsl_args),
-                 np.reshape(hit_mask[:totalsize], (-1, chunksize)))
+        try:
+            _compute(*sat_args,
+                    *(np.reshape(v[:totalsize], (-1, chunksize)) for v in vsl_args),
+                    np.reshape(hit_mask[:totalsize], (-1, chunksize)))
+        except RuntimeWarning:
+            pass
         if numvessels > totalsize:
             _compute(*sat_args,
                      *(v[totalsize:] for v in vsl_args),
