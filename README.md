@@ -13,6 +13,10 @@ This repository contains the draft code used to explore and analyze the data in 
 
 These notebooks and scripts expect files to be in a `data/` subdirectory of this directory. The data can be obtained from att-vault-corpus on S3.
 
+## Documentation
+
+PDF versions of the main notebooks used are in the `doc/` subdirectory of this directory, along with other documentation.
+
 ## Further reading
 
 DoD/government documents:
