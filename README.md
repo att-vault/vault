@@ -4,9 +4,12 @@ This repository contains the draft code used to explore and analyze the data in 
 
 1. EDA/Data exploration (Viewing_*.ipynb)
   * These files start with raw data where possible, with a goal of revealing it as it is, with as little cleanup as possible, so that same process can be applied to new data. These are primarily self contained, not relying on external scripts or modules in this repository (just packages in the Python environment installed)
-2. Data preparation (AIS*, TLE*)
+2. Machine Learning Use cases
+  * DOD_anomaly.ipynb - Case study provided by H2O for Pinnacle Use Case: Classify Suspicious Activity from AIS Data
+  * PrepareDataForMachineLearning.ipynb - Curate and Prepare Data for various Pinnacle Use cases.
+3. Data preparation (AIS*, TLE*)
   * These files start with raw data and create cleaned/consolidated/computed data for use in the other categories. Many of these use scripts in `scripts/`.
-3. Production (Hit_*; really prototypes of production)
+4. Production (Hit_*; really prototypes of production)
   * These files start with processed/prepared data, and approximate an end-user task (e.g. hit detection).
 
 ## Data
