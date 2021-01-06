@@ -220,6 +220,9 @@ class SatelliteDataStore:
     def __init__(self, root_folder):
         assert os.path.exists(root_folder)
         self.root_folder = root_folder
+        # Store a reference to file handles so we can close them, if requested.
+        # key is (norad_id, file_mode) where file_mode is "r", "w", etc.
+        self._handles = {}
 
     def _norad_id_to_path(self, norad_id: int) -> str:
         hsh = hashlib.md5(str(norad_id).encode("ascii")).hexdigest()
@@ -249,11 +252,24 @@ class SatelliteDataStore:
             os.makedirs(os.path.split(path_to_file)[0])
         except FileExistsError as e:
             pass
+        
+        return self._handles.setdefault((norad_id, mode), open_file(path_to_file, mode))
 
+<<<<<<< HEAD
         return open_file(path_to_file, mode, filters=Filters(complevel=5, complib='blosc'))
+=======
+    def _close(self, norad_id, mode: str):
+        """ Closes any open file handles for the given norad_id. If no ID is
+        given, then attempts to close all open file handles.
+        """
+        key = (norad_id, mode)
+        if key in self._handles:
+            self._handles[key].close()
+            del self._handles[key]
+>>>>>>> main
 
     def _get_array(self, norad_id):
-        return getattr(self._open_file_for_id(norad_id, "r").root, "s%d" % norad_id)
+        return getattr(self._open_file_for_id(norad_id, "r").root, "s%d" % norad_id)    
 
     def put_precomputed_tracks(self, norad_id: int, data: np.array):
         """
@@ -291,6 +307,9 @@ class SatelliteDataStore:
         end_index   = np.searchsorted(times, end.timestamp())
         
         dataz = array_node[:, start_index: end_index]
+
+        # close the file
+        self._close(norad_id, "r")
 
         # Pull out duplicate timestamps if any exist
         _, indices = np.unique(dataz[0, :], return_index=True)
