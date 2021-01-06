@@ -255,9 +255,8 @@ class SatelliteDataStore:
         
         return self._handles.setdefault((norad_id, mode), open_file(path_to_file, mode))
 
-<<<<<<< HEAD
         return open_file(path_to_file, mode, filters=Filters(complevel=5, complib='blosc'))
-=======
+
     def _close(self, norad_id, mode: str):
         """ Closes any open file handles for the given norad_id. If no ID is
         given, then attempts to close all open file handles.
@@ -266,7 +265,6 @@ class SatelliteDataStore:
         if key in self._handles:
             self._handles[key].close()
             del self._handles[key]
->>>>>>> main
 
     def _get_array(self, norad_id):
         return getattr(self._open_file_for_id(norad_id, "r").root, "s%d" % norad_id)    
