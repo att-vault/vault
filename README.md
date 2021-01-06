@@ -21,8 +21,8 @@ These notebooks and scripts expect files to be in a `data/` subdirectory of this
 PDF versions of the main notebooks used are in the `doc/` subdirectory of this directory, along with other documentation.
 
 ## Deliverables Checklist:
+This page serves as the main instruction index. From here, you can navigate to various resources, deliverables, and documention specific to that process.
 1. Public GitHub – All code/doc/Instructions
-  * Main Instruction Index Page: https://github.com/att-vault/vault/blob/main/README.md
   * Main Repos: https://github.com/att-vault/vault
   * API Repos: https://github.com/att-vault/vault-apis
 2. Public Vault-data-corpus on S3: http://..........
