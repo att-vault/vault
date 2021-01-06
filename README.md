@@ -20,6 +20,17 @@ These notebooks and scripts expect files to be in a `data/` subdirectory of this
 
 PDF versions of the main notebooks used are in the `doc/` subdirectory of this directory, along with other documentation.
 
+## Deliverables Checklist:
+1. Public GitHub – All code/doc/Instructions
+  * Main Instruction Index Page: https://github.com/att-vault/vault/blob/main/README.md
+  * Main Repos: https://github.com/att-vault/vault
+  * API Repos: https://github.com/att-vault/vault-apis
+2. Public Vault-data-corpus on S3: http://..........
+  * Satellite Data - Contains all TLE related data snapshots from various EDA/Curation processes
+  * Vessel Data - Contains all AIS related data snapshots from various EDA/Curation processes
+  * Docker Images - Contains latest Docker images for API and Interactive UI App; but you can also use our Jenkins pipeline to build and deploy new Docker images as well.
+
+
 ## Further reading
 
 DoD/government documents:
