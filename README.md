@@ -14,7 +14,8 @@ This repository contains the draft code used to explore and analyze the data in 
 
 ## Data
 
-These notebooks and scripts expect files to be in a `data/` subdirectory of this directory. The data can be obtained from att-vault-corpus on S3.
+These notebooks and scripts expect files to be in a `data/` subdirectory of this directory. 
+The data can be obtained from att-vault-corpus on S3:  http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/
 
 ## Documentation
 
@@ -25,7 +26,7 @@ This page serves as the main instruction index. From here, you can navigate to v
 1. Public GitHub – All code/doc/Instructions
   * Main Repos: https://github.com/att-vault/vault
   * API Repos: https://github.com/att-vault/vault-apis
-2. Public Vault-data-corpus on S3: http://..........
+2. Public Vault-data-corpus on S3:  http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/
   * Satellite Data - Contains all TLE related data snapshots from various EDA/Curation processes
   * Vessel Data - Contains all AIS related data snapshots from various EDA/Curation processes
   * Docker Images - Contains latest Docker images for API and Interactive UI App; but you can also use our Jenkins pipeline to build and deploy new Docker images as well.
