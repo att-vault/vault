@@ -53,7 +53,7 @@ These notebooks and scripts expect the underlying data files to be in a `data/` 
 ```
 > cd /data
 > pip install awscli
-> aws s3 sync s3://vault-data-minimal data --no-sign-request
+> aws s3 sync s3://vault-data-minimal . --no-sign-request
 ```
 
 Note that there are a lot of files involved and downloading is likely to take some time. Downloading to an EC2 instance is typically faster than to a home system.
