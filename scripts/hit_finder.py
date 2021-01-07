@@ -15,8 +15,8 @@ from sathelpers import SatelliteDataStore
 
 # Set some configuration variables
 # In general, these should be explicit paths with no variables or homedir (~)
-AIS_DIR = "/Users/pwang/data/vault"  # TODO
-SAT_DIR = "/Users/pwang/data/vault/satellites_active"  # TODO
+AIS_DIR = "./data/ais"  # TODO
+SAT_DIR = "./data/satellites"  # TODO
 
 # The years for which we have data
 VALID_YEARS = list(range(2009,2018))
@@ -108,8 +108,8 @@ def main():
                         "at the end of available AIS data.", default=None)
     parser.add_argument("-o", "--output", help="Write output to CSV", default=None)
 
-    parser.add_argument("--validate", help="Run validation on each computed visible datapoint. (Warning: takes a long time; "
-                        "provide narrower time windows to accelerate the process.")
+#    parser.add_argument("--validate", help="Run validation on each computed visible datapoint. (Warning: takes a long time; "
+#                        "provide narrower time windows to accelerate the process.")
 
     parser.add_argument("-w", "--workers", help="Number of workers to use. By default, uses all available on machine",
                         default=None)

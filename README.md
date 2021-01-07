@@ -2,6 +2,15 @@
 
 This repository contains the draft code used to explore and analyze the data in the 12/2020 "Technical Scenario" document for VAULT. It is organized into a set of [Jupyter notebooks](https://jupyter.org) runnable on any Linux or Mac system. For notebooks without interactive plots, the notebook is provided with output embedded directly into it, so that the results can be seen without having to set up and execute the code. Notebooks without output included are meant to be viewed "live", with a running Python server, so that the data can be fully explored interactively. PDF copies of all notebooks are provided for quick skimming or in case the notebook code or data is not available for running. Where appropriate, you can also visit a [deployed version](http://bit.ly/attvault) of the code.
 
+
+To get started, see the [Quickstart](Quickstart.md).
+
+
+## Data
+
+See [Downloading Data](Download_data.md)
+
+
 ## Notebooks
 
 The notebooks fall into the following categories:
@@ -45,29 +54,6 @@ These files start with raw data and create cleaned/consolidated/computed data fo
 - [TLE_Parser](TLE_Parser.ipynb):  Validate or correct the TLE data, producing gridded data for ingestion into the compute engine. [(PDF)](TLE_Parser.ipynb)
 - [TLE_precompute_checks](TLE_precompute_checks.ipynb): Various sanity checks on the TLE data. [(PDF)](TLE_precompute_checks.ipynb)
 - [TLE_to_pytables](TLE_to_pytables.ipynb): Converting TLE data into h5 format. [(PDF)](TLE_to_pytables.ipynb)
-
-## Data
-
-These notebooks and scripts expect the underlying data files to be in a `data/` subdirectory of this directory, which by default is a symbolic link to `/data`. You can copy the files from [vault-data-corpus on S3](http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/), putting them in `/data` on your own system (local or cloud) if you have access to `/`, or else put the data somewhere in your writable directories and update the `./data` symlink to point to its location. E.g.:
-
-```
-> cd /data
-> pip install awscli
-> aws s3 sync s3://vault-data-minimal . --no-sign-request
-```
-
-Note that there are a lot of files involved and downloading is likely to take some time. Downloading to an EC2 instance is typically faster than to a home system.
-
-## Running the code
-
-Starting from a laptop or cloud instance:
-1. install and activate [miniconda](https://conda.io/miniconda.html]
-2. Unpack this .zip file or clone `git@github.com:att-vault/vault.git`
-3. cd `vault`
-4. `conda install anaconda-project`
-5. `anaconda-project run` (to launch the apps) or `anaconda-project run Viewing_AIS` (or another notebook's name) to launch that notebook.
-
-anaconda-project will download the OSS packages needed, activate an appropriate environment, and then launch the indicated command in that environment. On a local system, a tab will then normally open in your web browser for you to use; on a remote system you can use the URL that is printed as a starting point for setting up a tunnel to your local system.
 
 ## Deliverables Checklist:
 
