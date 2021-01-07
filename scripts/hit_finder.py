@@ -15,8 +15,8 @@ from sathelpers import SatelliteDataStore
 
 # Set some configuration variables
 # In general, these should be explicit paths with no variables or homedir (~)
-AIS_DIR = "./data/ais"  # TODO
-SAT_DIR = "./data/satellites"  # TODO
+AIS_DIR = "./data/vessel data/Cleaned AIS/"
+SAT_DIR = "./data/satellite data/index/"
 
 # The years for which we have data
 VALID_YEARS = list(range(2009,2018))
@@ -30,9 +30,9 @@ def load_ais_for_times(start_time, end_time, use_interpolation=True):
     all_ais = []
     for year in years:
         if use_interpolation:
-            suffix = "h5"
+            suffix = ".interp.h5"
         else:
-            suffix = "interp.h5"
+            suffix = ".h5"
         ais = pd.read_hdf(os.path.join(AIS_DIR, f"ais_{year}.{suffix}"))
         ais.sort_values(by="date_time", inplace=True)
         all_ais.append(ais)
@@ -63,32 +63,6 @@ def compute_visibility(norad_id, start_time, end_time,
         print(f"Found {len(hits):,} hits in ", time.time()-s, "seconds")
     return hits
 
-def find_sats(mmsi, start_time, end_time):
-    """ Find all satellites that could have seen the given vessel between start_time and end_time
-    """
-    sds = SatelliteDataStore(SAT_DIR)
-    ids = sds.get_norad_ids()
-    print("Found", len(ids), "satellites")
-
-    s = time.time()
-    ais = load_ais_for_times(start_time, end_time, use_interpolation=True)
-    if len(ais) > 0:
-        ais = ais[ais["mmsi_id"] == mmsi]
-    print(f"Loaded {len(ais):,} points in", time.time()-s, "seconds")
-    print(ais.info())
-
-    import tqdm
-    vis_sat = []
-    for s_id in tqdm.tqdm(ids):
-        sat = sds.get_precomputed_df(s_id, start=start_time, end=end_time)
-        if len(sat) == 0:
-            continue
-        hits = intersect.compute_hits(sat, ais, start_time, end_time, 
-                assume_half_earth = False,
-                workers = None)
-        if len(hits) > 0:
-            vis_sat.append(s_id)
-    print("Found", len(vis_sat), "satellites")
 
 def main():
     import argparse
@@ -107,9 +81,6 @@ def main():
                         "pandas.Timestamp; e.g '2008-12-31T09:32:12'. If none is provided, then end "
                         "at the end of available AIS data.", default=None)
     parser.add_argument("-o", "--output", help="Write output to CSV", default=None)
-
-#    parser.add_argument("--validate", help="Run validation on each computed visible datapoint. (Warning: takes a long time; "
-#                        "provide narrower time windows to accelerate the process.")
 
     parser.add_argument("-w", "--workers", help="Number of workers to use. By default, uses all available on machine",
                         default=None)
