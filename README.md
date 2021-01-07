@@ -58,6 +58,17 @@ These files start with raw data and create cleaned/consolidated/computed data fo
 - [TLE_to_pytables](TLE_to_pytables.ipynb): Converting TLE data into h5 format. [(PDF)](TLE_to_pytables.ipynb)
 
 
+## Python Scripts
+
+These are all in the `scripts/` subdirectory.  Most print useful help with given the `--help` option, or in their file docstrings.
+
+  * `hit_finder.py`: CLI tool for computing all vessels & times visible to a satellite
+  * `reverse-hit-finder.py`: CLI tool for computing all satellites visible to a particular vessel MMSI
+  * `intersect.py`: The core logic of the visibility intersection algorithm
+  * `interpolate_ais.py`: Generates HDF5 files with synthetic interpolated points for vessel motion
+  * `build_index_parallel.sh`: Parallel driver for `sathelpers.py`, to precompute satellite trajectories.
+
+
 ## Deliverables Checklist:
 
 This page serves as the main instruction index. From here, you can navigate to various resources, deliverables, and documention specific to that process.
