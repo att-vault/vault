@@ -30,6 +30,7 @@ packages: &pkgs
   - spatialpandas ==0.3.6
   - xarray ==0.16.2
   - pip ==20.3.3
+  - tqdm
   - pip:
     - skyfield ==1.34
     - sgp4 ==2.14
