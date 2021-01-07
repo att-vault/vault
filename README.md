@@ -11,7 +11,7 @@ The notebooks fall into the following categories:
 These notebooks start with raw data where possible, with a goal of revealing it as it is, with as little cleanup as possible, so that same process can be applied to new data. These are primarily self contained, not relying on external scripts or modules in this repository (just packages in the Python environment installed).
 
 - [Viewing_AIS](Viewing_AIS.ipynb): Basic rendering of location data from sets of AIS pings.
-- [Viewing_AIS_Categorical](Viewing_AIS_Categorical.ipynb)): Breakdown of AIS location data by vessel type.
+- [Viewing_AIS_Categorical](Viewing_AIS_Categorical.ipynb): Breakdown of AIS location data by vessel type.
 - [Viewing_TLEs](Viewing_TLEs.ipynb): Basic rendering of earth-centered satellite location at epoch time from sets of TLEs.
 
 ### Data exploration
