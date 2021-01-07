@@ -58,6 +58,17 @@ These notebooks and scripts expect the underlying data files to be in a `data/` 
 
 Note that there are a lot of files involved and downloading is likely to take some time. Downloading to an EC2 instance is typically faster than to a home system.
 
+## Running the code
+
+Starting from a laptop or cloud instance:
+1. install and activate [miniconda](https://conda.io/miniconda.html]
+2. Unpack this .zip file or clone `git@github.com:att-vault/vault.git`
+3. cd `vault`
+4. `conda install anaconda-project`
+5. `anaconda-project run` (to launch the apps) or `anaconda-project run Viewing_AIS` (or another notebook's name) to launch that notebook.
+
+anaconda-project will download the OSS packages needed, activate an appropriate environment, and then launch the indicated command in that environment. On a local system, a tab will then normally open in your web browser for you to use; on a remote system you can use the URL that is printed as a starting point for setting up a tunnel to your local system.
+
 ## Deliverables Checklist:
 
 This page serves as the main instruction index. From here, you can navigate to various resources, deliverables, and documention specific to that process.
@@ -69,7 +80,6 @@ This page serves as the main instruction index. From here, you can navigate to v
   * Vessel Data - Contains all AIS related data snapshots from various EDA/Curation processes
   * Docker Images - Contains latest Docker images for API and Interactive UI App; but you can also use our Jenkins pipeline to build and deploy new Docker images as well.
 3. Deployed apps at http://bit.ly/attvault , though these will be taken down at some point after the demo presentation.
-
 
 
 ## Background reading
