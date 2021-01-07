@@ -6,14 +6,14 @@ name: ATT VAULT
 description: Notebooks and apps for the 1/2021 AT&T VAULT submission
 
 channels:
-  - pyviz/label/dev
+  - pyviz
   - defaults
 
 packages: &pkgs
   - bokeh ==2.2.3
   - colorcet ==2
   - dask ==2020.12.0
-  - datashader ==0.12.0rc1
+  - datashader ==0.12.0
   - h5py ==2.10.0
   - hdf5 ==1.10.4
   - holoviews ==1.14.0
@@ -40,20 +40,43 @@ dependencies: *pkgs
 
 commands:
   apps:
-    unix: panel serve *.ipynb
+    unix: panel serve Viewing_AIS.ipynb Viewing_AIS_Categorical.ipynb Viewing_TLEs.ipynb Viewing_Tracks.ipynb Hit_Dashboard.ipynb
     supports_http_options: true
-  hit_dashboard_nb:
-    notebook: Hit_Dashboard.ipynb
-  hit_finder_nb:
-    notebook: Hit_Finder.ipynb
-  ais_nb:
+  Viewing_AIS:
     notebook: Viewing_AIS.ipynb
-  ais_categorical_nb:
+  Viewing_AIS_Categorical:
     notebook: Viewing_AIS_Categorical.ipynb
-  tle_nb:
+  Viewing_TLEs:
     notebook: Viewing_TLEs.ipynb
-  tracks_nb:
+  Viewing_AIS_Gaps:
+    notebook: Viewing_AIS_Gaps.ipynb
+  Viewing_Tracks:
     notebook: Viewing_Tracks.ipynb
+  Hit_Finder:
+    notebook: Hit_Finder.ipynb
+  Hit_Dashboard:
+    notebook: Hit_Dashboard.ipynb
+  DOD_anomaly:
+    notebook: DOD_anomaly.ipynb
+  PrepareDataForMachineLearning:
+    notebook: PrepareDataForMachineLearning.ipynb
+  AIS_Analyze_Vessel_Cluster:
+    notebook: AIS_Analyze_Vessel_Cluster.ipynb
+  AIS_Anomaly_Detection:
+    notebook: AIS_Anomaly_Detection.ipynb
+  AIS_Parser:
+    notebook: AIS_Parser.ipynb
+  AIS_Validation:
+    notebook: AIS_Validation.ipynb
+  TLE_Parser:
+    notebook: TLE_Parser.ipynb
+  TLE_precompute_checks:
+    notebook: TLE_precompute_checks.ipynb
+  TLE_to_pytables:
+    notebook: TLE_to_pytables.ipynb
+
+
+
 
 variables: {}
 downloads: {}
