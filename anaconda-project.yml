@@ -2,7 +2,7 @@
 # Can reproduce them automatically if you install 'anaconda-project',
 # then 'anaconda-project run <cmdname>' (see commands below)
 
-name: ATT VAULT
+name: attvault
 description: Notebooks and apps for the 1/2021 AT&T VAULT submission
 
 channels:
