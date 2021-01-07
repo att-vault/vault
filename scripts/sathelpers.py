@@ -336,11 +336,12 @@ if __name__ == "__main__":
     This is specifically desgigned to be invoked by gnu parallel ala the script
     `build_index_parallel.sh` found in this same directory.
     """
-    parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument("--inputH5", default="/data/Indexed_TLE/reduced.h5")
-    parser.add_argument("--indexDirectory", default="/data/Indexed_TLE/index")
-    parser.add_argument("--listIDs", default=False, action="store_true")
-    parser.add_argument("--noradID", type=int)
+
+    parser = argparse.ArgumentParser(description=usage, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("--inputH5", default="/data/Indexed_TLE/reduced.h5", help="Location of the file created by TLE_ETL_Tool.py")
+    parser.add_argument("--indexDirectory", default="/data/Indexed_TLE/index", help="Directory to store the index files in")
+    parser.add_argument("--listIDs", default=False, action="store_true", help="If specified echo all stored norad ID's to the index file and quit.")
+    parser.add_argument("--noradID", type=int, help="The norad ID to add to the index file")
     
     args = parser.parse_args()
     data_store = SatelliteDataStore(args.indexDirectory)
