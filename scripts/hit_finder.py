@@ -30,9 +30,9 @@ def load_ais_for_times(start_time, end_time, use_interpolation=True):
     all_ais = []
     for year in years:
         if use_interpolation:
-            suffix = ".interp.h5"
+            suffix = "interp.h5"
         else:
-            suffix = ".h5"
+            suffix = "h5"
         ais = pd.read_hdf(os.path.join(AIS_DIR, f"ais_{year}.{suffix}"))
         ais.sort_values(by="date_time", inplace=True)
         all_ais.append(ais)
