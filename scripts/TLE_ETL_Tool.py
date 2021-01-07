@@ -85,7 +85,7 @@ if __name__ == "__main__":
      3. The records that remain are sorted and indexed on time and noradID - `/sat`
     """
 
-    parser = argparse.ArgumentParser(description=usage)
+    parser = argparse.ArgumentParser(description=usage, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument(
         "--limit",
         type=int,
