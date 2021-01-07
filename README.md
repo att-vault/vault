@@ -48,10 +48,19 @@ These files start with raw data and create cleaned/consolidated/computed data fo
 
 ## Data
 
-These notebooks and scripts expect the underlying data files to be in a `data/` subdirectory of this directory, which by default is a symbolic link to /data. You can copy the files from [vault-data-corpus on S3](http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/), puttingt them in /data on your own system (local or cloud) if you have access to /, or else put the data somewhere in your writable directories and update the ./data symlink to point to its location.
+These notebooks and scripts expect the underlying data files to be in a `data/` subdirectory of this directory, which by default is a symbolic link to /data. You can copy the files from [vault-data-corpus on S3](http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/), putting them in /data on your own system (local or cloud) if you have access to /, or else put the data somewhere in your writable directories and update the ./data symlink to point to its location. E.g.:
+
+```
+> cd /data
+> pip install awscli
+> aws s3 cp s3://vault-data-corpus data --recursive --no-sign-request
+```
+
+Note that there are a lot of files involved and downloading is likely to take some time. Downloading to an EC2 instance is typically faster than to a home system.
 
 
 ## Deliverables Checklist:
+
 This page serves as the main instruction index. From here, you can navigate to various resources, deliverables, and documention specific to that process.
 1. Public GitHub – All code/doc/Instructions
   * Main Repos: https://github.com/att-vault/vault
