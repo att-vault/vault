@@ -86,7 +86,14 @@ On Cell 11, is the interesting plot to interact with. The others are just step-b
 To zoom in & interact with the plot, click the "Wheel zoom" tool in the toolbar on the side of the plot.
 Click-and-drag the plot in order to look around.  As you zoom in, finer-grained detail will emerge and fill in.  Depending on the size of the dataset and your machine, this might take a second.
 
-RUnning through to Cell 19, we are now able to see plots of ships at different times.
+Running through to Cell 19, we are now able to see plots of ships at different times.
 
+## Launching web applications
 
+Some of the .ipynb files include an expression endin gin ".servable()" in the last code cell. These notebooks are set up to be used as standalone apps that can be shared with colleagues or across systems. To launch such an app, run it with `panel serve`:
 
+```
+    $ panel serve Viewing_AIS.ipynb
+```
+
+If running locally, a browser tab should then open with the app.  If running that command on a remote server, you can make sure the port number that's printed is accessible (e.g. by opening an ssh tunnel), then visit the app from your local browser at the appropriate URL.
