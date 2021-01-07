@@ -14,8 +14,7 @@ This repository contains the draft code used to explore and analyze the data in 
 
 ## Data
 
-These notebooks and scripts expect files to be in a `data/` subdirectory of this directory. 
-The data can be obtained from att-vault-corpus on S3:  http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/
+These notebooks and scripts expect files to be in a `data/` subdirectory of this directory, which by default is a symbolic link to /data. You can obtain the files from [vault-data-corpus on S3](http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/), and put them in /data on your own system (local or cloud) if you have access to /, or else put the data somewhere in your writable directories and update the ./data symlink to point to its location.
 
 ## Documentation
 
