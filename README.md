@@ -10,40 +10,41 @@ The notebooks fall into the following categories:
 
 These notebooks start with raw data where possible, with a goal of revealing it as it is, with as little cleanup as possible, so that same process can be applied to new data. These are primarily self contained, not relying on external scripts or modules in this repository (just packages in the Python environment installed).
 
-- Viewing_AIS.ipynb: Basic rendering of location data from sets of AIS pings.
-- Viewing_AIS_Categorical.ipynb: Breakdown of AIS location data by vessel type.
-- Viewing_TLEs.ipynb: Basic rendering of earth-centered satellite location at epoch time from sets of TLEs.
+- [Viewing_AIS](Viewing_AIS.ipynb): Basic rendering of location data from sets of AIS pings.
+- [Viewing_AIS_Categorical](Viewing_AIS_Categorical.ipynb)): Breakdown of AIS location data by vessel type.
+- [Viewing_TLEs](Viewing_TLEs.ipynb): Basic rendering of earth-centered satellite location at epoch time from sets of TLEs.
 
 ### Data exploration
 
 These notebooks also focus on data, but on derived or computed values.
 
-- Viewing_AIS_Gaps.ipynb: Visualizing unusually large gaps between AIS pings.
-- Viewing_Tracks.ipynb: Visualizing conputed satellite tracks (derived from TLE records)
+- [Viewing_AIS_Gaps](Viewing_AIS_Gaps.ipynb): Visualizing unusually large gaps between AIS pings.
+- [Viewing_Tracks](Viewing_Tracks.ipynb): Visualizing conputed satellite tracks (derived from TLE records)
 
 ### Prototypes
 
 These files start with processed/prepared data, and approximate an end-user task (e.g. hit detection).
 
-- Hit_Finder.ipynb: Notebook for calculating vessels viewable by a satellite over a date/time range
-- Hit_Dashboard.ipynb: End-user app for showing tracks and vessels viewable by a satellite over a date/time range
+- [Hit_Finder](Hit_Finder.ipynb): Notebook for calculating vessels viewable by a satellite over a date/time range
+- [Hit_Dashboard](Hit_Dashboard.ipynb): End-user app for showing tracks and vessels viewable by a satellite over a date/time range
 
 ### Machine learning / Analysis use cases
 
-- DOD_anomaly.ipynb - Case study provided by H2O for Pinnacle Use Case: Classify Suspicious Activity from AIS Data
-- PrepareDataForMachineLearning.ipynb - Curate and Prepare Data for various Pinnacle Use cases.
-- AIS_Analyze_Vessel_Cluster.ipynb
-- AIS_Anomaly_Detection.ipynb
+- [DOD_anomaly](DOD_anomaly.ipynb): Case study provided by H2O for Pinnacle Use Case: Classify Suspicious Activity from AIS Data
+- [PrepareDataForMachineLearning](PrepareDataForMachineLearning.ipynb): Curate and Prepare Data for various Pinnacle Use cases.
+- [AIS_Analyze_Vessel_Cluster](AIS_Analyze_Vessel_Cluster.ipynb): EDA, Stats, K-Means clustering, Plots for a given vessel
+- [AIS_Anomaly_Detection](AIS_Anomaly_Detection.ipynb): Collect stats and flag anomalous vessel coordinates
+
 
 ### Data preparation
 
 These files start with raw data and create cleaned/consolidated/computed data for use in the other categories. Many of these use scripts in `scripts/`.
 
-- AIS_Parser.ipynb: Parse the 2015-2017 flat csv files and transform data into Vessel, Broadcast, and Voyage files to be uniform with the GDB Exported Data
-- AIS_Validation.ipynb: Combine all vessels' data and generate clean consolidated files
-- TLE_Parser.ipynb:  Validate or correct the TLE data, producing gridded data for ingestion into the compute engine
-- TLE_precompute_checks.ipynb: Various sanity checks on the TLE data
-- TLE_to_pytables.ipynb: Converting TLE data into h5 format
+- [AIS_Parser](AIS_Parser.ipynb): Parse the 2015-2017 flat csv files and transform data into Vessel, Broadcast, and Voyage files to be uniform with the GDB Exported Data
+- [AIS_Validation](AIS_Validation.ipynb): Combine all vessels' data and generate clean consolidated files
+- [TLE_Parser](TLE_Parser.ipynb):  Validate or correct the TLE data, producing gridded data for ingestion into the compute engine
+- [TLE_precompute_checks](TLE_precompute_checks.ipynb): Various sanity checks on the TLE data
+- [TLE_to_pytables](TLE_to_pytables.ipynb): Converting TLE data into h5 format
 
 
 ## Data
