@@ -22,7 +22,7 @@ packages: &pkgs
   - numba ==0.51.2
   - numexpr ==2.7.1
   - pandas ==1.1.5
-  - panel ==0.10.0  
+  - panel ==0.10.2
   - python ==3.7.9
   - pytables ==3.6.1
   - scipy ==1.5.2
