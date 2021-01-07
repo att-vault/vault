@@ -1,6 +1,6 @@
 # AT&T Vault Tech Scenario
 
-This repository contains the draft code used to explore and analyze the data in the 12/2020 "Technical Scenario" document for VAULT. It is organized into a set of runnable [Jupyter notebooks](https://jupyter.org). For notebooks without interactive plots, the notebook is provided with output embedded directly into it, so that the results can be seen without having to set up and execute the code. Notebooks without output included are meant to be viewed "live", with a running Python server, so that the data can be fully explored interactively. PDF copies of all notebooks are provided for quick skimming or in case the notebook code or data is not available for running. Where appropriate, you can also visit a [deployed version](http://bit.ly/attvault) of the code.
+This repository contains the draft code used to explore and analyze the data in the 12/2020 "Technical Scenario" document for VAULT. It is organized into a set of [Jupyter notebooks](https://jupyter.org) runnable on any Linux or Mac system. For notebooks without interactive plots, the notebook is provided with output embedded directly into it, so that the results can be seen without having to set up and execute the code. Notebooks without output included are meant to be viewed "live", with a running Python server, so that the data can be fully explored interactively. PDF copies of all notebooks are provided for quick skimming or in case the notebook code or data is not available for running. Where appropriate, you can also visit a [deployed version](http://bit.ly/attvault) of the code.
 
 ## Notebooks
 
@@ -19,7 +19,7 @@ These notebooks start with raw data where possible, with a goal of revealing it 
 These notebooks also focus on data, but on derived or computed values.
 
 - [Viewing_AIS_Gaps](Viewing_AIS_Gaps.ipynb): Visualizing unusually large gaps between AIS pings. [(PDF)](doc/Viewing_AIS_Gaps.pdf)
-- [Viewing_Tracks](Viewing_Tracks.ipynb): Visualizing conputed satellite tracks (derived from TLE records). [(PDF)](doc/Viewing_Tracks.pdf)
+- [Viewing_Tracks](Viewing_Tracks.ipynb): Visualizing computed satellite tracks (derived from TLE records). [(PDF)](doc/Viewing_Tracks.pdf)
 
 ### Prototypes
 
@@ -48,16 +48,15 @@ These files start with raw data and create cleaned/consolidated/computed data fo
 
 ## Data
 
-These notebooks and scripts expect the underlying data files to be in a `data/` subdirectory of this directory, which by default is a symbolic link to /data. You can copy the files from [vault-data-corpus on S3](http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/), putting them in /data on your own system (local or cloud) if you have access to /, or else put the data somewhere in your writable directories and update the ./data symlink to point to its location. E.g.:
+These notebooks and scripts expect the underlying data files to be in a `data/` subdirectory of this directory, which by default is a symbolic link to `/data`. You can copy the files from [vault-data-corpus on S3](http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/), putting them in `/data` on your own system (local or cloud) if you have access to `/`, or else put the data somewhere in your writable directories and update the `./data` symlink to point to its location. E.g.:
 
 ```
 > cd /data
 > pip install awscli
-> aws s3 sync s3://vault-data-corpus data  --no-sign-request
+> aws s3 sync s3://vault-data-corpus data --no-sign-request
 ```
 
 Note that there are a lot of files involved and downloading is likely to take some time. Downloading to an EC2 instance is typically faster than to a home system.
-
 
 ## Deliverables Checklist:
 
