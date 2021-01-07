@@ -1,6 +1,6 @@
 # AT&T Vault Tech Scenario
 
-This repository contains the draft code used to explore and analyze the data in the 12/2020 "Technical Scenario" document for VAULT. It is organized into a set of [Jupyter notebooks](https://jupyter.org). Ideally, notebooks with interactive plots should be viewed "live", with a running Python server, so that the data can be fully explored interactively. PDF copies of most notebooks are provided for quick skimming or in case the notebook code or data is not available for running. 
+This repository contains the draft code used to explore and analyze the data in the 12/2020 "Technical Scenario" document for VAULT. It is organized into a set of runnable [Jupyter notebooks](https://jupyter.org). For notebooks without interactive plots, the notebook is provided with output embedded directly into it, so that the results can be seen without having to set up and execute the code. Notebooks without output included are meant to be viewed "live", with a running Python server, so that the data can be fully explored interactively. PDF copies of all notebooks are provided for quick skimming or in case the notebook code or data is not available for running. Where appropriate, you can also visit a [deployed version](http://bit.ly/attvault) of the code.
 
 ## Notebooks
 
@@ -10,56 +10,58 @@ The notebooks fall into the following categories:
 
 These notebooks start with raw data where possible, with a goal of revealing it as it is, with as little cleanup as possible, so that same process can be applied to new data. These are primarily self contained, not relying on external scripts or modules in this repository (just packages in the Python environment installed).
 
-- [Viewing_AIS](Viewing_AIS.ipynb): Basic rendering of location data from sets of AIS pings.
-- [Viewing_AIS_Categorical](Viewing_AIS_Categorical.ipynb): Breakdown of AIS location data by vessel type.
-- [Viewing_TLEs](Viewing_TLEs.ipynb): Basic rendering of earth-centered satellite location at epoch time from sets of TLEs.
+- [Viewing_AIS](Viewing_AIS.ipynb): Basic rendering of location data from sets of AIS pings. [(PDF)](doc/Viewing_AIS.pdf)
+- [Viewing_AIS_Categorical](Viewing_AIS_Categorical.ipynb): Breakdown of AIS location data by vessel type. [(PDF)](doc/Viewing_AIS_Categorical.pdf)
+- [Viewing_TLEs](Viewing_TLEs.ipynb): Basic rendering of earth-centered satellite location at epoch time from sets of TLEs. [(PDF)](doc/Viewing_TLEs.pdf)
 
 ### Data exploration
 
 These notebooks also focus on data, but on derived or computed values.
 
-- [Viewing_AIS_Gaps](Viewing_AIS_Gaps.ipynb): Visualizing unusually large gaps between AIS pings.
-- [Viewing_Tracks](Viewing_Tracks.ipynb): Visualizing conputed satellite tracks (derived from TLE records)
+- [Viewing_AIS_Gaps](Viewing_AIS_Gaps.ipynb): Visualizing unusually large gaps between AIS pings. [(PDF)](doc/Viewing_AIS_Gaps.pdf)
+- [Viewing_Tracks](Viewing_Tracks.ipynb): Visualizing conputed satellite tracks (derived from TLE records). [(PDF)](doc/Viewing_Tracks.pdf)
 
 ### Prototypes
 
 These files start with processed/prepared data, and approximate an end-user task (e.g. hit detection).
 
-- [Hit_Finder](Hit_Finder.ipynb): Notebook for calculating vessels viewable by a satellite over a date/time range
-- [Hit_Dashboard](Hit_Dashboard.ipynb): End-user app for showing tracks and vessels viewable by a satellite over a date/time range
+- [Hit_Finder](Hit_Finder.ipynb): Notebook for calculating vessels viewable by a satellite over a date/time range. [(PDF)](doc/Hit_Finder.pdf)
+- [Hit_Dashboard](Hit_Dashboard.ipynb): End-user app for showing tracks and vessels viewable by a satellite over a date/time range. [(PDF)](doc/Hit_Dashboard.pdf)
 
 ### Machine learning / Analysis use cases
 
-- [DOD_anomaly](DOD_anomaly.ipynb): Case study provided by H2O for Pinnacle Use Case: Classify Suspicious Activity from AIS Data
-- [PrepareDataForMachineLearning](PrepareDataForMachineLearning.ipynb): Curate and Prepare Data for various Pinnacle Use cases.
-- [AIS_Analyze_Vessel_Cluster](AIS_Analyze_Vessel_Cluster.ipynb): EDA, Stats, K-Means clustering, Plots for a given vessel
-- [AIS_Anomaly_Detection](AIS_Anomaly_Detection.ipynb): Collect stats and flag anomalous vessel coordinates
+- [DOD_anomaly](DOD_anomaly.ipynb): Case study provided by H2O for Pinnacle Use Case: Classify Suspicious Activity from AIS Data. [(PDF)](doc/DOD_anomaly.pdf)
+- [PrepareDataForMachineLearning](PrepareDataForMachineLearning.ipynb): Curate and Prepare Data for various Pinnacle Use cases. [(PDF)](doc/PrepareDataForMachineLearning.pdf)
+- [AIS_Analyze_Vessel_Cluster](AIS_Analyze_Vessel_Cluster.ipynb): EDA, Stats, K-Means clustering, Plots for a given vessel. [(PDF)](doc/AIS_Analyze_Vessel_Cluster.pdf)
+- [AIS_Anomaly_Detection](AIS_Anomaly_Detection.ipynb): Collect stats and flag anomalous vessel coordinates. [(PDF)](doc/AIS_Anomaly_Detection.pdf)
 
 
 ### Data preparation
 
-These files start with raw data and create cleaned/consolidated/computed data for use in the other categories. Many of these use scripts in `scripts/`.
+These files start with raw data and create cleaned/consolidated/computed data for use in the other categories. Many of these rely on scripts in `scripts/`, where you can see the detailed computations involved.
 
-- [AIS_Parser](AIS_Parser.ipynb): Parse the 2015-2017 flat csv files and transform data into Vessel, Broadcast, and Voyage files to be uniform with the GDB Exported Data
-- [AIS_Validation](AIS_Validation.ipynb): Combine all vessels' data and generate clean consolidated files
-- [TLE_Parser](TLE_Parser.ipynb):  Validate or correct the TLE data, producing gridded data for ingestion into the compute engine
-- [TLE_precompute_checks](TLE_precompute_checks.ipynb): Various sanity checks on the TLE data
-- [TLE_to_pytables](TLE_to_pytables.ipynb): Converting TLE data into h5 format
-
+- [AIS_Parser](AIS_Parser.ipynb): Parse the 2015-2017 flat csv files and transform data into Vessel, Broadcast, and Voyage files to be uniform with the GDB Exported Data. [(PDF)](AIS_Parser.ipynb)
+- [AIS_Validation](AIS_Validation.ipynb): Combine all vessels' data and generate clean consolidated files. [(PDF)](AIS_Validation.ipynb)
+- [TLE_Parser](TLE_Parser.ipynb):  Validate or correct the TLE data, producing gridded data for ingestion into the compute engine. [(PDF)](TLE_Parser.ipynb)
+- [TLE_precompute_checks](TLE_precompute_checks.ipynb): Various sanity checks on the TLE data. [(PDF)](TLE_precompute_checks.ipynb)
+- [TLE_to_pytables](TLE_to_pytables.ipynb): Converting TLE data into h5 format. [(PDF)](TLE_to_pytables.ipynb)
 
 ## Data
 
-These notebooks and scripts expect files to be in a `data/` subdirectory of this directory, which by default is a symbolic link to /data. You can obtain the files from [vault-data-corpus on S3](http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/), and put them in /data on your own system (local or cloud) if you have access to /, or else put the data somewhere in your writable directories and update the ./data symlink to point to its location.
+These notebooks and scripts expect the underlying data files to be in a `data/` subdirectory of this directory, which by default is a symbolic link to /data. You can copy the files from [vault-data-corpus on S3](http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/), puttingt them in /data on your own system (local or cloud) if you have access to /, or else put the data somewhere in your writable directories and update the ./data symlink to point to its location.
+
 
 ## Deliverables Checklist:
 This page serves as the main instruction index. From here, you can navigate to various resources, deliverables, and documention specific to that process.
 1. Public GitHub – All code/doc/Instructions
   * Main Repos: https://github.com/att-vault/vault
   * API Repos: https://github.com/att-vault/vault-apis
-2. Public Vault-data-corpus on S3:  http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/
+2. Public vault-data-corpus on S3:  http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/
   * Satellite Data - Contains all TLE related data snapshots from various EDA/Curation processes
   * Vessel Data - Contains all AIS related data snapshots from various EDA/Curation processes
   * Docker Images - Contains latest Docker images for API and Interactive UI App; but you can also use our Jenkins pipeline to build and deploy new Docker images as well.
+3. Deployed apps at http://bit.ly/attvault , though these will be taken down at some point after the demo presentation.
+
 
 
 ## Background reading
