@@ -90,7 +90,7 @@ Running through to Cell 19, we are now able to see plots of ships at different t
 
 ## Launching web applications
 
-Some of the .ipynb files include an expression endin gin ".servable()" in the last code cell. These notebooks are set up to be used as standalone apps that can be shared with colleagues or across systems. To launch such an app, run it with `panel serve`:
+Some of the .ipynb files include an expression endin gin ".servable()" in the last code cell. These notebooks are set up to be used as standalone apps that can be shared with colleagues or across systems. To launch such an app, run it with `panel serve` from within the `vault` environment:
 
 ```
     $ panel serve --port 5006 Viewing_AIS.ipynb
