@@ -10,6 +10,6 @@ order to generate meaningful categorical plots.
   CSV](https://www.ucsusa.org/sites/default/files/2020-10/UCS-Satellite-Database-8-1-2020.txt)
   file from [ucsusa.org](https://www.ucsusa.org/) which provides
   metadata for a large number of satellites, including their NORAD ids.
-- *Vessel.csv*: 
-- norad_id_active.txt: Used to determine prcomputation in `scripts/build_index_parallel.sh`
-- norad_id_all.txt:   Used to determine prcomputation in `scripts/build_index_parallel.sh`
+- *Vessel.csv*:  This file contains AIS metadata of sea vessels by their AIS `mmsi_id`.
+- norad_id_active.txt: Used to determine precomputation in `scripts/build_index_parallel.sh`
+- norad_id_all.txt:   Used to determine precomputation in `scripts/build_index_parallel.sh`
