@@ -53,7 +53,7 @@ These notebooks and scripts expect the underlying data files to be in a `data/` 
 ```
 > cd /data
 > pip install awscli
-> aws s3 sync s3://vault-data-corpus data --no-sign-request
+> aws s3 sync s3://vault-data-minimal data --no-sign-request
 ```
 
 Note that there are a lot of files involved and downloading is likely to take some time. Downloading to an EC2 instance is typically faster than to a home system.
@@ -75,7 +75,7 @@ This page serves as the main instruction index. From here, you can navigate to v
 1. Public GitHub – All code/doc/Instructions
   * Main Repos: https://github.com/att-vault/vault
   * API Repos: https://github.com/att-vault/vault-apis
-2. Public vault-data-corpus on S3:  http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/
+2. Public vault-data-corpus on S3:  http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/ (a subset of which is provided at vault-data-minimal, sufficient for running the code)
   * Satellite Data - Contains all TLE related data snapshots from various EDA/Curation processes
   * Vessel Data - Contains all AIS related data snapshots from various EDA/Curation processes
   * Docker Images - Contains latest Docker images for API and Interactive UI App; but you can also use our Jenkins pipeline to build and deploy new Docker images as well.
