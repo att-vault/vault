@@ -8,7 +8,7 @@ To get started, see the [Quickstart](Quickstart.md).
 
 ## Data
 
-See [Downloading Data](Download_data.md)
+See [Downloading Data](Download_Data.md)
 
 
 ## Notebooks
