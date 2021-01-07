@@ -55,6 +55,40 @@ These files start with raw data and create cleaned/consolidated/computed data fo
 - [TLE_precompute_checks](TLE_precompute_checks.ipynb): Various sanity checks on the TLE data. [(PDF)](TLE_precompute_checks.ipynb)
 - [TLE_to_pytables](TLE_to_pytables.ipynb): Converting TLE data into h5 format. [(PDF)](TLE_to_pytables.ipynb)
 
+<<<<<<< HEAD
+=======
+## Data
+
+These notebooks and scripts expect the underlying data files from [vault-data-minimal on S3](http://vault-data-minimal.s3-website.us-east-2.amazonaws.com/) to be stored in a `data/` subdirectory of this directory, which by default is a symbolic link to `/data`. If you have write access to `/`, you can get the data using:
+
+```
+> pip install awscli
+> aws s3 sync s3://vault-data-minimal /data --no-sign-request
+```
+
+Otherwise, put the data somewhere you do have write access to, and then update the symlink (using commands appropriate for your OS) to point to it:
+
+```
+> pip install awscli
+> aws s3 sync s3://vault-data-minimal ~/vault-data --no-sign-request
+> rm data
+> ln -s ~/vault-data data
+```
+
+Note that there are tens of gigabyes of files involved and downloading is likely to take some time. Downloading to an EC2 instance is typically faster than to a home system.
+
+## Running the code
+
+Starting from a laptop or cloud instance:
+1. install and activate [miniconda](https://conda.io/miniconda.html]
+2. Unpack this .zip file or clone `git@github.com:att-vault/vault.git`
+3. cd `vault`
+4. `conda install anaconda-project`
+5. `anaconda-project run` (to launch the apps) or `anaconda-project run Viewing_AIS` (or another notebook's name) to launch that notebook.
+
+anaconda-project will download the OSS packages needed, activate an appropriate environment, and then launch the indicated command in that environment. On a local system, a tab will then normally open in your web browser for you to use; on a remote system you can use the URL that is printed as a starting point for setting up a tunnel to your local system.
+
+>>>>>>> 095f4d86941a89bb6d56cbc6d41b8d67e915c303
 ## Deliverables Checklist:
 
 This page serves as the main instruction index. From here, you can navigate to various resources, deliverables, and documention specific to that process.
