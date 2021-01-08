@@ -15,7 +15,7 @@ The full dataset contains input data for some of the ML and ETL notebooks.
 
 # Extracting the data
 
-You can copy the files from , putting them in `/data` on your own system (local or cloud) if you have access to `/`, or else put the data somewhere in your writable directories and update the `./data` symlink to point to its location. E.g.:
+You will need to copy the files from S3 into your local machine or cloud host, putting them in `/data` if you have access to `/`, or else put the data somewhere in your writable directories and update the `./data` symlink to point to its location. E.g.:
 
 ```
 > cd /data
