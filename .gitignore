@@ -131,7 +131,6 @@ dmypy.json
 # data
 data/
 *.cred
-*.png
 
 *~
 .ipynb_checkpoints

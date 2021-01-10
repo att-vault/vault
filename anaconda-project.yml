@@ -6,8 +6,8 @@ name: attvault
 description: Notebooks and apps for the 1/2021 AT&T VAULT submission
 
 channels:
-  - pyviz
-  - defaults
+  - https://conda.anaconda.org/pyviz
+  - https://conda.anaconda.org/main
 
 packages: &pkgs
   - bokeh ==2.2.3
