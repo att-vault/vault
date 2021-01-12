@@ -51,11 +51,11 @@ These files start with processed/prepared data, and approximate an end-user task
 
 These files start with raw data and create cleaned/consolidated/computed data for use in the other categories. Many of these rely on scripts in `scripts/`, where you can see the detailed computations involved.
 
-- [AIS_Parser](AIS_Parser.ipynb): Parse the 2015-2017 flat csv files and transform data into Vessel, Broadcast, and Voyage files to be uniform with the GDB Exported Data. [(PDF)](AIS_Parser.ipynb)
-- [AIS_Validation](AIS_Validation.ipynb): Combine all vessels' data and generate clean consolidated files. [(PDF)](AIS_Validation.ipynb)
-- [TLE_Parser](TLE_Parser.ipynb):  Validate or correct the TLE data, producing gridded data for ingestion into the compute engine. [(PDF)](TLE_Parser.ipynb)
-- [TLE_precompute_checks](TLE_precompute_checks.ipynb): Various sanity checks on the TLE data. [(PDF)](TLE_precompute_checks.ipynb)
-- [TLE_to_pytables](TLE_to_pytables.ipynb): Converting TLE data into h5 format. [(PDF)](TLE_to_pytables.ipynb)
+- [AIS_Parser](AIS_Parser.ipynb): Parse the 2015-2017 flat csv files and transform data into Vessel, Broadcast, and Voyage files to be uniform with the GDB Exported Data. [(PDF)](doc/AIS_Parser.pdf)
+- [AIS_Validation](AIS_Validation.ipynb): Combine all vessels' data and generate clean consolidated files. [(PDF)](doc/AIS_Validation.pdf)
+- [TLE_Parser](TLE_Parser.ipynb):  Validate or correct the TLE data, producing gridded data for ingestion into the compute engine. [(PDF)](doc/TLE_Parser.pdf)
+- [TLE_precompute_checks](TLE_precompute_checks.ipynb): Various sanity checks on the TLE data. [(PDF)](doc/TLE_precompute_checks.pdf)
+- [TLE_to_pytables](TLE_to_pytables.ipynb): Converting TLE data into h5 format. [(PDF)](doc/TLE_to_pytables.pdf)
 
 
 ## Python Scripts
