@@ -40,10 +40,7 @@ dependencies: *pkgs
 
 commands:
   dashboards:
-    unix: panel serve Viewing_AIS.ipynb Viewing_AIS_Categorical.ipynb Viewing_TLEs.ipynb Hit_Dashboard.ipynb
-    supports_http_options: true
-  Viewing_Tracks_Dashboard:
-    unix: panel serve Viewing_Tracks.ipynb 
+    unix: panel serve Viewing_AIS.ipynb Viewing_AIS_Categorical.ipynb Viewing_TLEs.ipynb Hit_Dashboard.ipynb Viewing_Tracks.ipynb 
     supports_http_options: true
   Viewing_AIS:
     notebook: Viewing_AIS.ipynb
