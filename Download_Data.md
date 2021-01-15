@@ -7,7 +7,7 @@ There are two S3 buckets available.
 |    |  S3 URI | size |
 |----|----|----|
 | [Full dataset](http://vault-data-corpus.s3-website.us-east-2.amazonaws.com/) | s3://vault-data-corpus | 66 gb |
-| [Minimal dataset](http://vault-data-minimal.s3-website.us-east-2.amazonaws.com/) | s3://vault-data-corpus | 25 gb |
+| [Minimal dataset](http://vault-data-minimal.s3-website.us-east-2.amazonaws.com/) | s3://vault-data-minimal | 55 gb |
 
 The minimal dataset is all that is required for us to run the "Hit Finder" solution and dashboard, as well as some visualization exploration notebooks.
 
